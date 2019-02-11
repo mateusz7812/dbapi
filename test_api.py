@@ -2,6 +2,8 @@ from twisted.trial import unittest
 from twisted.web.client import Agent, readBody
 from twisted.internet import reactor
 from twisted.web.http_headers import Headers
+from twisted.web.client import FileBodyProducer
+from io import BytesIO
 
 
 class TestServer(unittest.TestCase):
@@ -13,11 +15,12 @@ class TestServer(unittest.TestCase):
         self.api = None
 
     def test_hello(self):
+        body = FileBodyProducer(BytesIO(b'Hello, world!'))
         response = self.api.request(
-            bytes('GET', 'utf8'),
+            bytes('POST', 'utf8'),
             bytes('http://localhost:8080', 'utf8'),
             Headers({'User-Agent': ['Twisted Web Client Example']}),
-            None)
+            body)
 
         def readData(res):
             body = readBody(res)
