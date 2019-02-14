@@ -1,10 +1,9 @@
 import random
-
-import redis
 from twisted.web import server, resource
 from twisted.internet import reactor
 import json
-from DBExec import register, login
+from DBExec import register, login, add_list, del_list, get_lists
+from RedisExec import RExecutor
 
 
 def process_request(task):
@@ -26,22 +25,27 @@ def user_manager(task):
 
 
 def save_client(user_id: int):
-    r = redis.Redis(
-        host='localhost',
-        port='6379',
-        password=''
-    )
     user_key = random.randInt(0, 1000000)
-    r.set(user_id, user_key)
+    with RExecutor() as exc:
+        exc.set(user_key, user_id)
     return user_key
 
 
 def list_manager(task):
     kind = task[0]
-    if kind == "add":
-        add_list(task[1:])
+    if kind == "get":
+        user_id = get_user_id(task[1:])
+        return get_lists(user_id)
+    elif kind == "add":
+        return add_list(task[1:])
     elif kind == "del":
-        del_list(task[1:])
+        return del_list(task[1:])
+
+
+def get_user_id(user_key):
+    with RExecutor() as exc:
+        user_id = exc.get(user_key)
+    return user_id
 
 
 class netApi(resource.Resource):

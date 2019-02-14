@@ -6,6 +6,8 @@ from twisted.web.client import FileBodyProducer
 from io import BytesIO
 import json
 
+from DBExec import DBExecutor
+
 
 class TestServer(unittest.TestCase):
 
@@ -15,38 +17,49 @@ class TestServer(unittest.TestCase):
     def tearDown(self):
         self.api = None
 
-    def test_register_user(self):
-        data = json.dumps(['user', 'register', 'nick', 'login', 'password'])
-        ret = bytes(json.dumps(True), "utf-8")
-        body = FileBodyProducer(BytesIO(bytes(data, "utf-8")))
+    def test_procedure(self):
+        # user is being registered
+        received_answer, correct_answer = self.get_answers(['user', 'register', 'nick', 'login', 'password'], True)
+        self.assertEqual(received_answer, correct_answer)
 
-        response = self.make_response(body)
-        response.addCallback(readData)
+        # user is being logged in
+        received_answer, _ = self.get_answers(['user', 'login', 'login', 'password'])
+        unpacked_received = self.unpack_answer(received_answer)
+        self.assertisnotEqual(unpacked_received, -1)
 
-        response.addCallback(lambda x: self.assertEqual(x, ret))
-        return response
+        user_key = unpacked_received
 
-    def test_login_user(self):
-        data = json.dumps(['user', 'login', 'login', 'password'])
-        ret = bytes(json.dumps(True), "utf-8")
-        body = FileBodyProducer(BytesIO(bytes(data, "utf-8")))
+        # lists are being loaded
+        received_answer, correct_answer = self.get_answers(['list', 'get', user_key], [])
+        self.assertEqual(received_answer, correct_answer)
 
-        response = self.make_response(body)
-        response.addCallback(readData)
+        # list is being added
+        received_answer, _ = self.get_answers(['list', 'add', user_key, 'testowa', 'content'])
+        unpacked_received = self.unpack_answer(received_answer)
+        self.assertisnotEqual(unpacked_received, -1)
 
-        response.addCallback(lambda x: self.assertEqual(x, ret))
-        return response
+        list_id = unpacked_received
 
-    def test_list(self):
-        data = json.dumps(['list', 'add', 'name', 'content'])
-        ret = bytes(json.dumps(True), "utf-8")
-        body = FileBodyProducer(BytesIO(bytes(data, "utf-8")))
+        # added list is being checked
+        received_answer, correct_answer = self.get_answers(['list', 'get', user_key], [['testowa', 'content']])
+        self.assertEqual(received_answer, correct_answer)
 
-        response = self.make_response(body)
-        response.addCallback(readData)
+        # list is being deleted
+        received_answer, correct_answer = self.get_answers(['list', 'del', user_key, list_id], True)
+        self.assertEqual(received_answer, correct_answer)
 
-        response.addCallback(lambda x: self.assertEqual(x, ret))
-        return response
+        # lists are being loaded
+        received_answer, correct_answer = self.get_answers(['list', 'get', user_key], [])
+        self.assertEqual(received_answer, correct_answer)
+
+        # user is being logged out
+        received_answer, _ = self.get_answers(['user', 'logout', user_key])
+        unpacked_received = self.unpack_answer(received_answer)
+        self.assertisnotEqual(unpacked_received, -1)
+
+        # list is being added, but it end bad
+        received_answer, correct_answer = self.get_answers(['list', 'add', user_key, 'testowa', 'content'], -1)
+        self.assertisEqual(received_answer, correct_answer)
 
     def make_response(self, body):
         return self.api.request(
@@ -55,7 +68,28 @@ class TestServer(unittest.TestCase):
             Headers({'User-Agent': ['Twisted Web Client Example']}),
             body)
 
+    def readData(self, res):
+        body = readBody(res)
+        return body
 
-def readData(res):
-    body = readBody(res)
-    return body
+    def unpack_answer(self, answer):
+        unpacked_answer = json.loads(answer)
+        return unpacked_answer
+
+    def prepare_body(self, data: []):
+        data = json.dumps(data)
+        body = FileBodyProducer(BytesIO(bytes(data, "utf-8")))
+        return body
+
+    def prepare_correct_answer(self, data: []):
+        answer = bytes(json.dumps(data), "utf-8")
+        return answer
+
+    def get_answers(self, request_data: [], correct_answer=None):
+        body = self.prepare_body(request_data)
+        correct_answer = self.prepare_correct_answer(correct_answer)
+
+        response = self.make_response(body)
+        received_answer = self.readData(response)
+
+        return received_answer, correct_answer
