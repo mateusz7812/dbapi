@@ -6,8 +6,6 @@ from twisted.web.client import FileBodyProducer
 from io import BytesIO
 import json
 
-from DBExec import DBExecutor
-
 
 class TestServer(unittest.TestCase):
 

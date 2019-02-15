@@ -48,7 +48,7 @@ def get_user_id(user_key):
     return user_id
 
 
-class netApi(resource.Resource):
+class NetApi(resource.Resource):
     isLeaf = True
 
     def render_POST(self, request):
@@ -56,6 +56,6 @@ class netApi(resource.Resource):
         return bytes(process_request(task), "utf-8")
 
 if __name__ == "__main__":
-    site = server.Site(netApi())
+    site = server.Site(NetApi())
     reactor.listenTCP(8080, site)
     reactor.run()

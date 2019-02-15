@@ -1,9 +1,6 @@
 import hashlib
 import random
-
 import psycopg2
-
-from RedisExec import RExecutor
 
 
 class DBExecutor:
@@ -11,9 +8,18 @@ class DBExecutor:
         self.conn = None
         self.cur = None
         self.database = database
+        self.user, self.password = self.get_pass()
+
+    def get_pass(self):
+        with open("dbpass") as f:
+            data = f.readlines()
+        data = [x.split(":") for x in data]
+        for row in data:
+            if row[0] == self.database:
+                return row[1:]
 
     def __enter__(self):
-        self.conn = psycopg2.connect(host="localhost:5432", database=self.database, user="admin", password="admin")
+        self.conn = psycopg2.connect(host="localhost:5432", database=self.database, user=self.user, password=self.password)
         self.cur = self.conn.cursor()
 
     def __exit__(self, exc_type, exc_val, exc_tb):
