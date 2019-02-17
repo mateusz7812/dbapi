@@ -6,7 +6,9 @@ class Simple(resource.Resource):
     isLeaf = True
 
     def render_POST(self, request):
-        return request.content.read()
+		data = request.content.read()
+		print(data)
+        return data
 
 if __name__ == "__main__":
     site = server.Site(Simple())
