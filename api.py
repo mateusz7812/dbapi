@@ -6,8 +6,8 @@ class Simple(resource.Resource):
     isLeaf = True
 
     def render_POST(self, request):
-		data = request.content.read()
-		print(data)
+        data = request.content.read()
+        print(data)
         return data
 
 if __name__ == "__main__":
