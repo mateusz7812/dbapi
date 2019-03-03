@@ -38,7 +38,5 @@ class DBListMBase(ManagerBase, ABC):
         self.user_key: str = data[1]
         self.data: [] = data[2:]
 
-    def validate(self):
-        raise NotImplementedError
 
 

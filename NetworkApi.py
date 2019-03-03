@@ -9,19 +9,19 @@ class NetApi(resource.Resource):
 
     def __init__(self, handler: BaseHandler = TaskHandler):
         super().__init__()
-        self.processer = handler
+        self.taskHandler = handler
 
     def render_GET(self, request):
         print("GET request", request.content.read())
-        return True
+        return "True"
 
     def render_POST(self, request):
         data = request.content.read().decode("utf-8")
         print("POST request", request.content.read())
         task = json.loads(data)
         try:
-            self.processer = self.processer()
-            response = self.processer.process_request(task)
+            self.taskHandler = self.taskHandler()
+            response = self.taskHandler.process_request(task)
         except Exception as e:
             response = "internal error:\n\t" + str(e)
         print("response: ", response)

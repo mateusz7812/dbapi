@@ -1,31 +1,41 @@
+import unittest
+
 from BranchInterfaces import BaseBranch
 from Branchs import TaskHandler
 
 
-class BranchHandlerTest:
-    def __init__(self, branchs: []):
-        self.branchHandler = TaskHandler(branchs)
+class TestBranch1(BaseBranch):
+    name = "test1"
 
-    def test_process(self, data):
-        result = self.branchHandler.process_request(data)
-        return result
+    def process_request(self, task):
+        return [self.name] + task
 
 
-class test_base_branch(BranchHandlerTest):
-    class TestBranch(BaseBranch):
-        name = "test"
+class TestBranch2(BaseBranch):
+    name = "test2"
 
-        def process_request(self, task):
-            return task
-
-    def __init__(self, data):
-        super().__init__([self.TestBranch])
-        result = self.test_process(["test", data])
-        assert result == data
+    def process_request(self, task):
+        return [self.name] + task
 
 
-def run_test():
-    test_base_branch("some data")
+class TestBranch3(BaseBranch):
+    name = "test3"
 
-if __name__ == "__main__":
-    run_test()
+    def process_request(self, task):
+        return [self.name] + task
+
+
+class TestBranchHandler(unittest.TestCase):
+    def setUp(self):
+        self.handler = TaskHandler([])
+
+    def test_one_branch_routing(self):
+        self.handler.add_branchs([TestBranch1])
+        result = self.handler.process_request(["test1", "some data"])
+        self.assertEqual(result, ["test1", "some data"])
+
+    def test_more_branches_routing(self):
+        self.handler.add_branchs([TestBranch1, TestBranch2, TestBranch3])
+        result = self.handler.process_request(["test2", "some data"])
+        self.assertEqual(result, ["test2", "some data"])
+

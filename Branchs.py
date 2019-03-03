@@ -64,7 +64,7 @@ class UserLogin(BaseBranch):
         if self.user_key:
             return self.user_key
 
-        return self.Rmanager.add()
+        return self.Rmanager.add
 
 
 class UserLogout(BaseBranch):
@@ -124,7 +124,7 @@ class ListAdd(BaseBranch):
 
     def process_request(self, task):
         self.DBmanager = self.DBmanager(task)
-        return self.DBmanager.add()
+        return self.DBmanager.add
 
 
 class ListDel(BaseBranch):

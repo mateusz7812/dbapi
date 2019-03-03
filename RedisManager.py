@@ -37,17 +37,17 @@ class RManager(RedisMBase, ABC):
 
     def add(self):
         user_key = str(random.randInt(0, 1000000))
-        with self.executor.__init__() as exc:
-            exc.set(self.user_id, user_key)
+        self.exc = self.executor()
+        self.exc.set(self.user_id, user_key)
         self.user_key = user_key
         return True
 
     def get(self):
-        with self.executor.__init__() as exc:
-            self.user_key = exc.get(self.user_id)
+        self.exc = self.executor()
+        self.user_key = self.exc.get(self.user_id)
         return True
 
     def delete(self):
-        with self.executor.__init__() as exc:
-            exc.delete(self.user_id)
+        self.exc = self.executor()
+        self.exc.delete(self.user_id)
         return True
