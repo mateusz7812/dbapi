@@ -13,7 +13,7 @@ class NetApi(resource.Resource):
 
     def render_GET(self, request):
         print("GET request", request.content.read())
-        return "True"
+        return 1
 
     def render_POST(self, request):
         data = request.content.read().decode("utf-8")

@@ -1,11 +1,6 @@
-import os
 import unittest
-import test_BranchHandler
-import test_DBListManager
-import test_DBUserManager
-import test_ListBranch
-import test_RManager
-import test_UserBranchs
+from unittests import test_UserBranchs, test_DBUserManager, test_ListBranch, test_DBListManager, test_BranchHandler, \
+    test_RManager
 
 loader = unittest.TestLoader()
 suite = unittest.TestSuite()
