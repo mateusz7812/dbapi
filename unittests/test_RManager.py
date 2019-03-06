@@ -11,15 +11,29 @@ class TestRExecutor(RedisExecutorBase):
         self.data[1] = user_key
 
     def get(self, user_id):
-        if self.data[0] == user_id:
-            return self.data[1]
+        if user_id == 12:
+            return "key1"
         return False
 
     def delete(self, user_id):
-        return True
+        pass
 
 
 class TestRManager(TestCase):
-    def test_add(self):
-        result = RManager(12, TestRExecutor)
+    def test_RManager_add(self):
+        result = RManager([12, "key1"], TestRExecutor).add()
+        self.assertTrue(result)
 
+    def test_RManager_get(self):
+        result = RManager([12, "key1"], TestRExecutor).get()
+        self.assertTrue(result)
+
+        result = RManager([11, "key1"], TestRExecutor).get()
+        self.assertFalse(result)
+
+        result = RManager([12, "key2"], TestRExecutor).get()
+        self.assertFalse(result)
+
+    def test_RManager_delete(self):
+        result = RManager([12, "key1"], TestRExecutor).delete()
+        self.assertTrue(result)

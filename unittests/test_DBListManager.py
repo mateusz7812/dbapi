@@ -37,19 +37,19 @@ class TestDBListManager(TestCase):
     def tearDown(self):
         self.TDBexec.queryData = []
 
-    def test_add(self):
+    def test_DBListManager_add(self):
         result = DBListManager([12, "key1", "name", "content"], self.TDBexec).add()
         self.assertEqual(self.queryData[0][0], 12)
         self.assertEqual(self.queryData[0][1], "name")
         self.assertEqual(self.queryData[0][2], "content")
         return result
 
-    def test_get(self):
+    def test_DBListManager_get(self):
         result = DBListManager([12, "key1"], self.TDBexec).get()
         self.assertEqual(result, "all")
         self.assertEqual(self.queryData[0][0], 12)
 
-    def test_delete(self):
+    def test_DBListManager_delete(self):
         result = DBListManager([12, "key1", 1], self.TDBexec).delete()
         self.assertEqual(self.queryData[0][0], 1)
         self.assertTrue(result)

@@ -5,7 +5,7 @@ from twisted.test import proto_helpers
 from twisted.trial._asynctest import TestCase
 from twisted.web import server
 
-from NetworkApi import NetApi, BaseHandler
+from HttpApi import HttpApi, BaseHandler
 
 
 class TestBranchHandler(BaseHandler):
@@ -15,7 +15,7 @@ class TestBranchHandler(BaseHandler):
 
 class TestAPI(TestCase):
     def setUp(self):
-        site = server.Site(NetApi(TestBranchHandler))
+        site = server.Site(HttpApi(TestBranchHandler))
         self.proto = site.buildProtocol(('127.0.0.1', 0))
         self.tr = proto_helpers.StringTransport()
         self.proto.makeConnection(self.tr)

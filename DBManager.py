@@ -1,13 +1,13 @@
 import hashlib
-import psycopg2
-import random
 
-from BranchInterfaces import DBUserMBase, DBListMBase
+import psycopg2
+
+from DataManagerInterface import DataManagerBase
 
 
 class BaseDBExecutor:
     def __init__(self, database):
-        self.database = database
+        self.name = database
 
     def end(self):
         raise NotImplementedError
@@ -16,8 +16,8 @@ class BaseDBExecutor:
 class DBExecutor(BaseDBExecutor):
     def __init__(self, database):
         super(DBExecutor, self).__init__(database)
-        self.user, self.password = self.get_pass()
-        self.conn = psycopg2.connect(host="192.168.88.111", database=self.database, user=self.user, password=self.password)
+        [self.address, self.user, self.password] = self.get_pass()
+        self.conn = psycopg2.connect(host=self.address, database=self.name, user=self.user, password=self.password)
         self.cur = self.conn.cursor()
 
     def end(self):
@@ -27,33 +27,41 @@ class DBExecutor(BaseDBExecutor):
         self.conn = None
 
     def get_pass(self):
-        with open("dbpass") as f:
+        import os
+        cur_dir = os.path.dirname(os.path.abspath(__file__))
+        with open(cur_dir + "\pass\dbpass") as f:
             data = f.readlines()
         data = [x[:-1].split(":") for x in data]
         for row in data:
-            if row[0] == self.database:
+            if row[0] == self.name:
                 return row[1:]
 
 
-class DBUserManager(DBUserMBase):
+class DBUserMBase(DataManagerBase):
+    def __init__(self, data: []):
+        self.login: str = data[0]
+        self.password: str = data[1]
+        self.data: [] = data[2:]
+
+
+class UsersPostgresOrganizer(DBUserMBase):
     def __init__(self, data, executor: BaseDBExecutor = DBExecutor):
         self.executor = executor
         self.exc: BaseDBExecutor
         super().__init__(data)
 
-    @property
     def add(self):
-        nick = self.data[0]
+        nick: str = self.data[0]
+        salt: int = self.data[1]
 
         self.exc = self.executor("users")
         self.exc.cur.execute('INSERT INTO users("nick", "login") VALUES(%s, %s) RETURNING id', [nick, self.login])
         user_id = self.exc.cur.fetchone()[0]
         self.exc.end()
 
-        salt = random.randint(1000, 9999)
         hashed_password = self.generate_hash(salt)
 
-        self.exc = self.executor("password")
+        self.exc = self.executor("passwords")
         self.exc.cur.execute('INSERT INTO passwords("password", "user_id") VALUES(%s, %s)', [hashed_password, user_id])
         self.exc.end()
 
@@ -65,7 +73,11 @@ class DBUserManager(DBUserMBase):
     def get(self):
         self.exc = self.executor("users")
         self.exc.cur.execute('SELECT id FROM users WHERE login=%s', [self.login])
-        user_id = self.exc.cur.fetchone()[0]
+        value = self.exc.cur.fetchone()
+        if value:
+            user_id = value[0]
+        else:
+            return False
 
         self.exc = self.executor("salts")
         self.exc.cur.execute('SELECT salt FROM salts WHERE user_id=%s', [user_id])
@@ -106,6 +118,13 @@ class DBUserManager(DBUserMBase):
         return hashed
 
 
+class DBListMBase(DataManagerBase):
+    def __init__(self, data: []):
+        self.user_id: int = data[0]
+        self.user_key: str = data[1]
+        self.data: [] = data[2:]
+
+
 class DBListManager(DBListMBase):
     def __init__(self, data, executor: BaseDBExecutor = DBExecutor):
         self.executor: BaseDBExecutor = executor
@@ -133,5 +152,3 @@ class DBListManager(DBListMBase):
         self.exc = self.executor("lists")
         self.exc.cur.execute('DELETE FROM lists WHERE id=%s', [list_id])
         return True
-
-

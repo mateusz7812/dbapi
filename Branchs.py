@@ -1,6 +1,13 @@
-from BranchInterfaces import BaseBranch, DBUserMBase, RedisMBase, DBListMBase
-from RedisManager import RManager
-from DBManager import DBUserManager, DBListManager
+
+from DBManager import DBListManager, DBListMBase
+from DataProcessor import DataProcessor, SessionManager
+
+
+class BaseBranch:
+    name: str = None
+
+    def process_request(self, task):
+        raise NotImplementedError
 
 
 class BaseHandler:
@@ -38,65 +45,51 @@ class UserBranch(BaseBranch):
 class UserReg(BaseBranch):
     name = "reg"
 
-    def __init__(self, DBmanager: DBUserMBase = DBUserManager):
-        self.DBmanager = DBmanager
+    def __init__(self, UDManager: DataProcessor = DataProcessor):
+        self.UDManager = UDManager
 
     def process_request(self, task):
-        self.DBmanager = self.DBmanager(task)
-        return self.DBmanager.add()
-
-
-class UserLogin(BaseBranch):
-    name = "login"
-
-    def __init__(self, DBmanager: DBUserMBase = DBUserManager, Rmanager: RedisMBase = RManager):
-        self.DBmanager = DBmanager
-        self.Rmanager = Rmanager
-
-    def process_request(self, task):
-        self.DBmanager = self.DBmanager(task)
-        if not self.DBmanager.get():
-            return False
-        user_id = self.DBmanager.get()
-
-        self.Rmanager = self.Rmanager(user_id)
-        self.user_key = self.Rmanager.get()
-        if self.user_key:
-            return self.user_key
-
-        return self.Rmanager.add
-
-
-class UserLogout(BaseBranch):
-    name = "logout"
-
-    def __init__(self, Rmanager: RedisMBase = RManager):
-        self.Rmanager = Rmanager
-
-    def process_request(self, task):
-        self.Rmanager = self.Rmanager(task[0])
-        if self.Rmanager.get() == task[1]:
-            return self.Rmanager.delete()
-        return False
+        self.UDManager = self.UDManager(task)
+        return self.UDManager.add()
 
 
 class UserDel(BaseBranch):
     name = "del"
 
-    def __init__(self, DBmanager: DBUserMBase = DBUserManager):
-        self.DBmanager = DBmanager
+    def __init__(self, UManager: DataProcessor = DataProcessor):
+        self.UManager = UManager
 
     def process_request(self, task):
-        self.DBmanager = self.DBmanager(task)
-        if self.DBmanager.get():
-            return self.DBmanager.delete()
-        return False
+        self.UManager = self.UManager(task)
+        return self.UManager.delete()
+
+
+class UserLogin(BaseBranch):
+    name = "login"
+
+    def __init__(self, SManager: SessionManager = SessionManager):
+        self.SManager = SManager
+
+    def process_request(self, task):
+        self.SManager = self.SManager(task)
+        return self.SManager.add()
+
+
+class UserLogout(BaseBranch):
+    name = "logout"
+
+    def __init__(self, SManager: SessionManager = SessionManager):
+        self.SManager = SManager
+
+    def process_request(self, task):
+        self.SManager = self.SManager(task)
+        return self.SManager.delete()
 
 
 class ListsBranch(BaseBranch):
     name = "list"
 
-    def __init__(self, Rmanager: RedisMBase = RManager):
+    def __init__(self, Rmanager):
         self.Rmanager = Rmanager
 
     def process_request(self, task):

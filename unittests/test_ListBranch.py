@@ -1,8 +1,8 @@
 import unittest
 from unittest import TestCase
 
-from BranchInterfaces import DBListMBase
 from Branchs import ListsGet, ListAdd, ListDel
+from DBManager import DBListMBase
 
 
 class TestListDBManager(DBListMBase):
