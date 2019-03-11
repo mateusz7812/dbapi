@@ -12,7 +12,7 @@ suite.addTest(loader.loadTestsFromModule(test_DBListManager))
 suite.addTest(loader.loadTestsFromModule(test_BranchHandler))
 suite.addTest(loader.loadTestsFromModule(test_RManager))
 suite.addTest(loader.loadTestsFromModule(test_DataManager))
-suite.addTest(loader.loadTestsFromModule(test_DBExecutor))
+# suite.addTest(loader.loadTestsFromModule(test_DBExecutor))
 
 runner = unittest.TextTestRunner(verbosity=2)
 result = runner.run(suite)

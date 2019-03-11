@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from DBManager import BaseDBExecutor, DBListManager
+from DBManager import BaseDExecutor, ListsPostgresManager
 
 
 class TestConnector:
@@ -18,11 +18,11 @@ class TestConnector:
         return "all"
 
 
-class TestDBExecutor(BaseDBExecutor):
+class TestDBExecutor(BaseDExecutor):
     queryData = []
 
-    def __init__(self, database):
-        self.cur = TestConnector(self.queryData, database)
+    def __init__(self, table):
+        self.cur = TestConnector(self.queryData, table)
 
     def end(self):
         pass
@@ -38,19 +38,19 @@ class TestDBListManager(TestCase):
         self.TDBexec.queryData = []
 
     def test_DBListManager_add(self):
-        result = DBListManager([12, "key1", "name", "content"], self.TDBexec).add()
+        result = ListsPostgresManager([12, "key1", "name", "content"], self.TDBexec).add()
         self.assertEqual(self.queryData[0][0], 12)
         self.assertEqual(self.queryData[0][1], "name")
         self.assertEqual(self.queryData[0][2], "content")
         return result
 
     def test_DBListManager_get(self):
-        result = DBListManager([12, "key1"], self.TDBexec).get()
+        result = ListsPostgresManager([12, "key1"], self.TDBexec).get()
         self.assertEqual(result, "all")
         self.assertEqual(self.queryData[0][0], 12)
 
     def test_DBListManager_delete(self):
-        result = DBListManager([12, "key1", 1], self.TDBexec).delete()
+        result = ListsPostgresManager([12, "key1", 1], self.TDBexec).delete()
         self.assertEqual(self.queryData[0][0], 1)
         self.assertTrue(result)
 

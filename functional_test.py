@@ -35,7 +35,7 @@ class TestServer(TestCase):
         # added list exist is being checked
         response = self.get_response(['list', 'get', user_id, user_key])
         self.assertEqual(response[0], "lists gotten")
-        self.assertEqual(response[1], [['testowa', 'content']])
+        self.assertEqual(response[1], [[list_id, 'testowa', 'content']])
 
         # list is being deleted
         response = self.get_response(['list', 'del', user_id, user_key, list_id])
@@ -56,4 +56,4 @@ class TestServer(TestCase):
 
     def get_response(self, data):
         r = requests.post("http://localhost:8080", data=json.dumps(data))
-        return str(r.content)
+        return str(r.content, "utf-8")

@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from Branchs import UserReg, UserLogin, UserLogout, UserDel
-from DataProcessor import DataManagerBase
+from RequestProcessor import DataManagerBase
 
 
 class TestUserDataManager(DataManagerBase):

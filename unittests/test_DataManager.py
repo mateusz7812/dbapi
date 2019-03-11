@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from DBManager import DBUserMBase
-from DataProcessor import SessionManager, DataProcessor
+from RequestProcessor import SessionManager, UsersProcessor, ListsProcessor
 from DataManagerInterface import DataManagerBase
 from RedisManager import RedisMBase
 
@@ -27,7 +27,9 @@ class TestRedisManager(RedisMBase):
 class SessionTest(TestCase):
     def test_Session_add(self):
         result = SessionManager([12, "key1"], TestRedisManager).add()
-        self.assertEqual("key1", result)
+        self.assertEqual("user logged in", result[0])
+        self.assertEqual(12, result[1])
+        self.assertEqual("key1", result[2])
 
     def test_Session_get_correct(self):
         result = SessionManager([12, "key1"], TestRedisManager).get()
@@ -43,15 +45,15 @@ class SessionTest(TestCase):
 
     def test_Session_delete_correct(self):
         result = SessionManager([12, "key1"], TestRedisManager).delete()
-        self.assertTrue(result)
+        self.assertEqual("user logged out", result)
 
     def test_Session_delete_bad_key(self):
         result = SessionManager([12, "key2"], TestRedisManager).delete()
-        self.assertFalse(result)
+        self.assertEqual("session not found", result)
 
     def test_Session_delete_bad_id(self):
         result = SessionManager([10, "key1"], TestRedisManager).delete()
-        self.assertFalse(result)
+        self.assertEqual("session not found", result)
 
 
 class TestUserDBManager(DBUserMBase):
@@ -88,17 +90,42 @@ class TestSessionManager(DataManagerBase):
         return "session deleted"
 
 
-class TestUserDataManager(TestCase):
-    def test_DataProcessor_add(self):
-        result = DataProcessor(['login', 'password', 'nick'], TestUserDBManager, TestSessionManager).add()
+class TestUsersProcessor(TestCase):
+    def test_UsersProcessor_add(self):
+        result = UsersProcessor(['login', 'password', 'nick'], TestUserDBManager, TestSessionManager).add()
         self.assertEqual("user added", result)
 
-    def test_DataProcessor_get(self):
-        result = DataProcessor(['login', 'password'], TestUserDBManager, TestSessionManager).get()
+    def test_UsersProcessor_get(self):
+        result = UsersProcessor(['login', 'password'], TestUserDBManager, TestSessionManager).get()
         self.assertEqual(19, result[0])
 
-    def test_DataProcessor_delete(self):
-        result = DataProcessor(['login', 'password', 12345], TestUserDBManager, TestSessionManager).delete()
+    def test_UsersProcessor_delete(self):
+        result = UsersProcessor(['login', 'password', 12345], TestUserDBManager, TestSessionManager).delete()
         self.assertEqual("user deleted", result)
 
+
+class TestListDBManager(DataManagerBase):
+
+    def add(self):
+        return "list added"
+
+    def get(self):
+        return "lists gotten"
+
+    def delete(self):
+        return "list deleted"
+
+
+class TestListsProcessor(TestCase):
+    def test_ListsProcessor_add(self):
+        result = ListsProcessor([12, "key1", 'testowa', 'content'], TestListDBManager).add()
+        self.assertEqual("list added", result)
+
+    def test_ListsProcessor_get(self):
+        result = ListsProcessor([12, "key1"], TestListDBManager).get()
+        self.assertEqual("lists gotten", result)
+
+    def test_UsersProcessor_delete(self):
+        result = ListsProcessor([12, "key1", 10], TestListDBManager).delete()
+        self.assertEqual("list deleted", result)
 
