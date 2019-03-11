@@ -26,7 +26,9 @@ class RExecutor(RedisExecutorBase):
         )
 
     def get_pass(self):
-        with open("rpass") as f:
+        import os
+        cur_dir = os.path.dirname(os.path.abspath(__file__))
+        with open(cur_dir + "\pass\\rpass") as f:
             data = f.readline()
         return data
 
@@ -58,4 +60,30 @@ class RManager(RedisMBase, ABC):
         if self.exc.get(self.user_id):
             self.exc.delete(self.user_id)
             return True
-        return False
+        return "session not found"
+
+
+class SessionManager(DataManagerBase):
+    def __init__(self, task, Rmanager: RedisMBase = RManager):
+        self.Rmanager = Rmanager
+        self.task = task
+
+    def add(self):
+        self.Rmanager = self.Rmanager(self.task)
+        self.Rmanager.add(,,
+        return [
+            "user logged in",
+            self.Rmanager.user_id,
+            self.Rmanager.user_key
+        ]
+
+    def get(self):
+        self.Rmanager = self.Rmanager(self.task)
+        return self.Rmanager.get()
+
+    def delete(self):
+        self.Rmanager = self.Rmanager(self.task)
+        if self.Rmanager.get():
+            if self.Rmanager.delete():
+                return "user logged out"
+        return "session not found"
