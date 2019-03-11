@@ -1,154 +1,86 @@
+import abc
 import hashlib
 
-import psycopg2
 
-from DataManagerInterface import DataManagerBase
+class BaseDExecutor(abc.ABC):
+    def __init__(self):
+        self.tableName: str = ""
+        self.data: {} = {}
 
+    def add(self, tableName, requestData):
+        raise NotImplementedError
 
-class BaseDBExecutor:
-    def __init__(self, database):
-        self.name = database
+    def get(self, tableName, requestData):
+        raise NotImplementedError
 
-    def end(self):
+    def delete(self, tableName, requestData):
         raise NotImplementedError
 
 
-class DBExecutor(BaseDBExecutor):
-    def __init__(self, database):
-        super(DBExecutor, self).__init__(database)
-        [self.address, self.user, self.password] = self.get_pass()
-        self.conn = psycopg2.connect(host=self.address, database=self.name, user=self.user, password=self.password)
-        self.cur = self.conn.cursor()
-
-    def end(self):
-        self.cur.close()
-        self.cur = None
-        self.conn.close()
-        self.conn = None
-
-    def get_pass(self):
-        import os
-        cur_dir = os.path.dirname(os.path.abspath(__file__))
-        with open(cur_dir + "\pass\dbpass") as f:
-            data = f.readlines()
-        data = [x[:-1].split(":") for x in data]
-        for row in data:
-            if row[0] == self.name:
-                return row[1:]
-
-
-class DBUserMBase(DataManagerBase):
-    def __init__(self, data: []):
-        self.login: str = data[0]
-        self.password: str = data[1]
-        self.data: [] = data[2:]
-
-
-class UsersPostgresOrganizer(DBUserMBase):
-    def __init__(self, data, executor: BaseDBExecutor = DBExecutor):
+class UsersDBManager:
+    def __init__(self, executor):
         self.executor = executor
-        self.exc: BaseDBExecutor
-        super().__init__(data)
+        self.exc: BaseDExecutor
 
-    def add(self):
-        nick: str = self.data[0]
-        salt: int = self.data[1]
-
-        self.exc = self.executor("users")
-        self.exc.cur.execute('INSERT INTO users("nick", "login") VALUES(%s, %s) RETURNING id', [nick, self.login])
-        user_id = self.exc.cur.fetchone()[0]
-        self.exc.end()
-
-        hashed_password = self.generate_hash(salt)
-
-        self.exc = self.executor("passwords")
-        self.exc.cur.execute('INSERT INTO passwords("password", "user_id") VALUES(%s, %s)', [hashed_password, user_id])
-        self.exc.end()
-
-        self.exc = self.executor("salts")
-        self.exc.cur.execute('INSERT INTO salts("salt", "user_id") VALUES(%s, %s)', [salt, user_id])
-
-        return True
-
-    def get(self):
-        self.exc = self.executor("users")
-        self.exc.cur.execute('SELECT id FROM users WHERE login=%s', [self.login])
-        value = self.exc.cur.fetchone()
-        if value:
-            user_id = value[0]
-        else:
-            return False
-
-        self.exc = self.executor("salts")
-        self.exc.cur.execute('SELECT salt FROM salts WHERE user_id=%s', [user_id])
-        salt = self.exc.cur.fetchone()[0]
-
-        self.exc = self.executor("passwords")
-        self.exc.cur.execute('SELECT password FROM passwords WHERE user_id=%s', [user_id])
-        chashed_password = self.exc.cur.fetchone()[0]
-
-        if chashed_password == self.generate_hash(salt):
-            return user_id
-        return False
-
-    def delete(self):
-        user_id = self.get()
-
-        if user_id != -1:
-            self.exc = self.executor("users")
-            self.exc.cur.execute('DELETE FROM users WHERE id=$s', [user_id])
-
-            self.exc = self.executor("salts")
-            self.exc.cur.execute('DELETE FROM salts WHERE user_id=%s', [user_id])
-
-            self.exc = self.executor("passwords")
-            self.exc.cur.execute('DELETE FROM passwords WHERE user_id=%s', [user_id])
-
-            self.exc = self.executor("lists")
-            self.exc.cur.execute('DELETE FROM lists WHERE user_id=%s', [user_id])
-
-            return True
-        return False
-
-    def generate_hash(self, salt):
+    def generate_hash(self, password, salt):
         hasher = hashlib.md5()
-        hasher.update(bytes(self.password, "utf-8"))
+        hasher.update(bytes(password, "utf-8"))
         hasher.update(bytes(str(salt), "utf-8"))
         hashed = hasher.hexdigest()
         return hashed
 
+    def add(self, data: {}):
+        login: str = data["login"]
+        password: str = data["password"]
+        nick: str = data["nick"]
+        salt: int = data["salt"]
+        hashed_password = self.generate_hash(password, salt)
+        if self.executor.get("users", {"login": login}):
+            return -1
+        user_id = self.executor.add("users", {"nick": nick, "login": login})
+        self.executor.add("passwords", {"user_id": user_id, "password": hashed_password})
+        self.executor.add("salts", {"user_id": user_id, "salt": salt})
+        return user_id
 
-class DBListMBase(DataManagerBase):
-    def __init__(self, data: []):
-        self.user_id: int = data[0]
-        self.user_key: str = data[1]
-        self.data: [] = data[2:]
+    def get(self, data: {}):
+        login: str = data["login"]
+        password: str = data["password"]
+        value = self.executor.get("users", {"login": login})
+        if not value:
+            return False
+
+        user_id = value[0]
+        salt = self.executor.get("salts", {"user_id": user_id})
+        chashed_password = self.executor.get("passwords", {"uer_id": user_id})
+
+        return [user_id if chashed_password == self.generate_hash(password, salt) else False]
+
+    def delete(self, data: {}):
+        user_id = self.get(data)
+        if user_id == -1:
+            return False
+        self.executor.delete("users", {"user_id": user_id})
+        self.executor.delete("salts", {"user_id": user_id})
+        self.executor.delete("passwords", {"user_id": user_id})
+        self.executor.delete("lists", {"user_id": user_id})
+        return True
 
 
-class DBListManager(DBListMBase):
-    def __init__(self, data, executor: BaseDBExecutor = DBExecutor):
-        self.executor: BaseDBExecutor = executor
+class ListsPostgresManager:
+    def __init__(self, data, executor):
+        self.executor = executor
         super().__init__(data)
 
     def add(self):
         name, content = self.data
-
-        self.exc = self.executor("lists")
-        self.exc.cur.execute('INSERT INTO lists("user_id", "name", "content") VALUES (%s, %s, %s) RETURNING id',
-                             [self.user_id, name, content])
-        list_id = self.exc.cur.fetchone()[0]
-
+        list_id = self.executor("lists", {"user_id": self.user_id, "name": name, "content": content})
         return list_id
 
     def get(self):
-        self.exc = self.executor("lists")
-        self.exc.cur.execute('SELECT name, content FROM lists WHERE user_id=%s', [self.user_id])
-        lists = self.exc.cur.fetchall()
-
+        lists = self.executor("lists", {"user_id", self.user_id})
         return lists
 
     def delete(self):
         list_id = self.data[0]
-        self.exc = self.executor("lists")
-        self.exc.cur.execute('DELETE FROM lists WHERE id=%s', [list_id])
+        self.executor("lists", {"list-id": list_id})
         return True
