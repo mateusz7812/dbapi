@@ -1,6 +1,6 @@
 
-from DBManager import DBListManager, DBListMBase
-from DataProcessor import DataProcessor, SessionManager
+from DBManager import ListsPostgresManager, DBListMBase
+from RequestProcessor import UsersProcessor, SessionManager
 
 
 class BaseBranch:
@@ -45,18 +45,18 @@ class UserBranch(BaseBranch):
 class UserReg(BaseBranch):
     name = "reg"
 
-    def __init__(self, UDManager: DataProcessor = DataProcessor):
+    def __init__(self, UDManager: UsersProcessor = UsersProcessor):
         self.UDManager = UDManager
 
     def process_request(self, task):
         self.UDManager = self.UDManager(task)
-        return self.UDManager.add()
+        return self.UDManager.add(,,
 
 
 class UserDel(BaseBranch):
     name = "del"
 
-    def __init__(self, UManager: DataProcessor = DataProcessor):
+    def __init__(self, UManager: UsersProcessor = UsersProcessor):
         self.UManager = UManager
 
     def process_request(self, task):
@@ -72,7 +72,7 @@ class UserLogin(BaseBranch):
 
     def process_request(self, task):
         self.SManager = self.SManager(task)
-        return self.SManager.add()
+        return self.SManager.add(,,
 
 
 class UserLogout(BaseBranch):
@@ -101,7 +101,7 @@ class ListsBranch(BaseBranch):
 class ListsGet(BaseBranch):
     name = "get"
 
-    def __init__(self, DBmanager: DBListMBase = DBListManager):
+    def __init__(self, DBmanager: DBListMBase = ListsPostgresManager):
         self.DBmanager = DBmanager
 
     def process_request(self, task):
@@ -112,7 +112,7 @@ class ListsGet(BaseBranch):
 class ListAdd(BaseBranch):
     name = "add"
 
-    def __init__(self, DBmanager: DBListMBase = DBListManager):
+    def __init__(self, DBmanager: DBListMBase = ListsPostgresManager):
         self.DBmanager = DBmanager
 
     def process_request(self, task):
@@ -123,7 +123,7 @@ class ListAdd(BaseBranch):
 class ListDel(BaseBranch):
     name = "del"
 
-    def __init__(self, DBmanager: DBListMBase = DBListManager):
+    def __init__(self, DBmanager: DBListMBase = ListsPostgresManager):
         self.DBmanager = DBmanager
 
     def process_request(self, task):

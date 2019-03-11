@@ -23,7 +23,6 @@ class HttpApi(resource.Resource):
         print("POST request", request.content.read())
         task = json.loads(data)
         "try:"
-        self.taskHandler = self.taskHandler()
         response = self.taskHandler.process_request(task)
         """except Exception as e:
             response = "internal error:\n\t" + str(e)"""
