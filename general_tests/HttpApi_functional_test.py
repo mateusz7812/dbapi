@@ -23,7 +23,7 @@ class TestServer(TestCase):
 
         # user is being logged in
         response = self.get_response(
-            {"object": 'user', "action": 'log',
+            {"object": 'user', "action": 'login',
              "login": 'login', "password": 'password'})
         self.assertEqual(response["info"], "user logged in")
         self.assertEqual(int, type(response["user_id"]))
