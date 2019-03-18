@@ -5,32 +5,53 @@ from DBManager import UsersDBManager
 from DataBaseExecutors import TextBExecutor
 
 
+import os
+cur_dir = os.path.dirname(os.path.abspath(__file__))
+cur_dir = "\\".join(cur_dir.split("\\")[:-1])
+
+
 class TestDBUserManager(TestCase):
+    def clear_file(self, name):
+        with open(cur_dir + "\\textDataBases\\" + name, "r") as f:
+            data = f.readline()
+        with open(cur_dir + "\\textDataBases\\" + name, "w") as f:
+            f.write(data)
+
+    def setUp(self):
+        self.executor = TextBExecutor()
+        self.clear_file("users")
+        self.clear_file("salts")
+        self.clear_file("passwords")
+
     def test_UsersDBManager_add(self):
-        TextBExecutor().delete("users", {"login": "test1"})
-        TextBExecutor().delete("users", {"login": "test1"})
+        user_id = UsersDBManager(self.executor).add({"login": "test1", "password": "test2", "nick": "nick", "salt": 1234})["user_id"]
+        response = UsersDBManager(self.executor).add({"login": "test1", "password": "test2", "nick": "nick", "salt": 1234})
+        self.assertEqual("took login", response["info"])
 
-        user_id = UsersDBManager(TextBExecutor()).add({"login": "test1", "password": "test2", "nick": "nick", "salt": 1234})
+        filtered_user = self.executor.get("users", {"nick": "nick", "login": "test1"})
+        self.assertEqual("nick", filtered_user[0]["nick"])
+        self.assertEqual("test1", filtered_user[0]["login"])
 
-        response = UsersDBManager(TextBExecutor()).add({"login": "test1", "password": "test2", "nick": "nick", "salt": 1234})
-        self.assertEqual(-1, response)
+        filtered_salt = self.executor.get("salts", {"user_id": user_id})
+        self.assertEqual(1234, filtered_salt[0]["salt"])
 
-        filtered_user = TextBExecutor().get("users", {"nick": "nick", "login": "test1"})
-        self.assertEqual(["nick", "test1"], filtered_user[0][1:])
-
-        filtered_salt = TextBExecutor().get("salts", {"user_id": user_id})
-        self.assertEqual(1234, filtered_salt[0][2])
-
-        filtered_passwords = TextBExecutor().get("passwords", {"user_id": user_id})
+        filtered_passwords = self.executor.get("passwords", {"user_id": user_id})
         self.assertTrue(filtered_passwords)
 
     def test_UsersDBManager_get(self):
-        logg = UsersDBManager(["test1", "test2"]).get()
-        self.assertEqual(self.queryData[0][0], "test1")
-        self.assertEqual(self.queryData[1][0], 10)
-        self.assertEqual(self.queryData[2][0], 10)
+        UsersDBManager(self.executor).add({"login": "test1", "password": "test2", "nick": "nick", "salt": 1234})
+        result = UsersDBManager(self.executor).check({"login": "test1", "password": "test2"})
+        self.assertEqual("user correct", result["info"])
+        self.assertEqual(int, type(result["user_id"]))
+
+        result = UsersDBManager(self.executor).check({"login": "test2", "password": "test2"})
+        self.assertEqual({"info": "bad login"}, result)
 
     def test_UsersDBManager_delete(self):
-        result = UsersDBManager(["test1", "test2"], self.TDBexec).delete()
-        self.assertEqual(self.queryData[0][0], "test1")
-        [self.assertEqual(self.queryData[x][0], 10) for x in range(1, 7)]
+        UsersDBManager(self.executor).add({"login": "test1", "password": "test2", "nick": "nick", "salt": 1234})
+
+        result = UsersDBManager(self.executor).delete({"login": "test1", "password": "test2"})
+        self.assertEqual({"info": "user deleted"}, result)
+
+        result = UsersDBManager(self.executor).delete({"login": "test9", "password": "test2"})
+        self.assertEqual({"info": "bad login"}, result)
