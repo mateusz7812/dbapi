@@ -21,8 +21,7 @@ def main():
     usersP = UsersProcessor(usersDBM, sessionsM)
     listsP = ListsProcessor(listsDBM, sessionsM)
 
-    processors = [usersP, listsP]
-    forwarder = TaskForwarder(processors)
+    forwarder = TaskForwarder(usersP=usersP, listsP=listsP)
 
     HttpApi(forwarder).run()
 

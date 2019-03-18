@@ -1,7 +1,6 @@
 import json
 
 from twisted.web import resource
-from Branchs import TaskHandler, BaseHandler
 from twisted.internet import reactor
 from twisted.web import server
 
@@ -9,30 +8,29 @@ from twisted.web import server
 class HttpApi(resource.Resource):
     isLeaf = True
 
-    def __init__(self, handler):
+    def __init__(self, forwarder):
         super().__init__()
-        self.taskHandler = handler
+        self.forwarder = forwarder
 
     def render_GET(self, request):
-        print("GET request", request.content.read())
+        print("GET request", request.content.read().decode("utf-8"))
         return bytes("work", "utf-8")
 
     def render_POST(self, request):
         data = request.content.read().decode("utf-8")
-        print("POST request", request.content.read())
         task = json.loads(data)
-        "try:"
-        response = self.taskHandler.process_request(task)
-        """except Exception as e:
-            response = "internal error:\n\t" + str(e)"""
-        print("response: ", response)
-        if type(response) == bool:
-            response = str(response)
-        if type(response) == str:
-            return bytes(response, "utf-8")
-        raise Exception("bad return type", response)
+        try:
+            response = self.forwarder.forward(task)
+        except Exception as e:
+            response = "internal error:\n\t" + str(e)
+        print("\nPOST:", data, "\n", response, "\n")
+        response = json.dumps(response)
+        return bytes(response, "utf-8")
 
     def run(self):
-        site = server.Site(HttpApi())
+        site = server.Site(self)
         reactor.listenTCP(8080, site)
-        reactor.run()
+        return reactor.run()
+
+    def stop(self):
+        reactor.stop()
