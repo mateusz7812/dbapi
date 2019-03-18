@@ -1,10 +1,10 @@
-from DBManager import UsersDBManager, ListsDBManager
-from DataBaseExecutors import TextBExecutor
-from Forwarder import TaskForwarder
-from HttpApi import HttpApi
+from managers.DBManager import UsersDBManager, ListsDBManager
+from writers.DataBaseExecutors import TextBExecutor
+from net_Interface.Forwarder import TaskForwarder
+from net_Interface.HttpApi import HttpApi
 from Processor import UsersProcessor, ListsProcessor
-from SessionManager import SessionManager
-from TempDataExecutors import TextTempExecutor
+from managers.SessionManager import SessionManager
+from writers.TempDataExecutors import TextTempExecutor
 
 DataWriter = TextBExecutor()
 UserDataManager = UsersDBManager(DataWriter)

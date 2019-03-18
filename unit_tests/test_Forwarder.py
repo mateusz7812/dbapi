@@ -1,12 +1,12 @@
 from unittest import TestCase
 from unittest.mock import patch
 
-from DBManager import UsersDBManager, ListsDBManager
-from DataBaseExecutors import TextBExecutor
-from Forwarder import TaskForwarder
+from managers.DBManager import UsersDBManager, ListsDBManager
+from writers.DataBaseExecutors import TextBExecutor
+from net_Interface.Forwarder import TaskForwarder
 from Processor import UsersProcessor, ListsProcessor
-from SessionManager import SessionManager
-from TempDataExecutors import TextTempExecutor
+from managers.SessionManager import SessionManager
+from writers.TempDataExecutors import TextTempExecutor
 
 
 def retfunc(value):

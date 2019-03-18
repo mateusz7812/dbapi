@@ -1,8 +1,8 @@
 import os
 from unittest import TestCase
 
-from DBManager import ListsDBManager
-from DataBaseExecutors import TextBExecutor
+from managers.DBManager import ListsDBManager
+from writers.DataBaseExecutors import TextBExecutor
 
 cur_dir = os.path.dirname(os.path.abspath(__file__))
 cur_dir = "\\".join(cur_dir.split("\\")[:-1])

@@ -1,5 +1,5 @@
 import unittest
-from unittests import test_DBUserManager, test_DBListManager, test_SessionManager, test_Processor, test_DBExecutor, \
+from unit_tests import test_DBUserManager, test_DBListManager, test_SessionManager, test_Processor, test_DBExecutor, \
     test_TempDataExecutor
 
 loader = unittest.TestLoader()

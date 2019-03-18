@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from TempDataExecutors import TextTempExecutor
+from writers.TempDataExecutors import TextTempExecutor
 
 
 class TestTestTempExecutor(TestCase):

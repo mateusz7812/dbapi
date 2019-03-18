@@ -1,8 +1,8 @@
 from unittest import TestCase
 
 
-from DBManager import UsersDBManager
-from DataBaseExecutors import TextBExecutor
+from managers.DBManager import UsersDBManager
+from writers.DataBaseExecutors import TextBExecutor
 
 
 import os

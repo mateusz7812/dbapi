@@ -1,7 +1,3 @@
-from abc import ABC
-
-import redis
-
 
 class SessionExecutorBase:
     def add(self, data):

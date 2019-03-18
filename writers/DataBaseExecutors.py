@@ -2,9 +2,10 @@ import json
 import psycopg2
 import os
 
-from DBManager import BaseDExecutor
+from managers.DBManager import BaseDExecutor
 
 cur_dir = os.path.dirname(os.path.abspath(__file__))
+cur_dir = "\\".join(cur_dir.split("\\")[:-1])
 
 
 class TextBExecutor(BaseDExecutor):

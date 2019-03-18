@@ -1,11 +1,11 @@
 import os
 from unittest import TestCase
 
-from DBManager import UsersDBManager, ListsDBManager
-from DataBaseExecutors import TextBExecutor
+from managers.DBManager import UsersDBManager, ListsDBManager
+from writers.DataBaseExecutors import TextBExecutor
 from Processor import UsersProcessor, ListsProcessor
-from SessionManager import SessionManager
-from TempDataExecutors import TextTempExecutor
+from managers.SessionManager import SessionManager
+from writers.TempDataExecutors import TextTempExecutor
 
 
 def clear_file(name):

@@ -2,7 +2,12 @@ import json
 
 import redis
 
-from SessionManager import SessionExecutorBase
+from managers.SessionManager import SessionExecutorBase
+
+import os
+
+cur_dir = os.path.dirname(os.path.abspath(__file__))
+cur_dir = "\\".join(cur_dir.split("\\")[:-1])
 
 
 class RedisExecutor(SessionExecutorBase):
@@ -17,8 +22,6 @@ class RedisExecutor(SessionExecutorBase):
         )
 
     def get_pass(self):
-        import os
-        cur_dir = os.path.dirname(os.path.abspath(__file__))
         with open(cur_dir + "\\pass\\rpass") as f:
             data = f.readline()
         return data
@@ -38,28 +41,26 @@ class RedisExecutor(SessionExecutorBase):
 
 
 class TextTempExecutor(SessionExecutorBase):
-    import os
-    cur_dir = os.path.dirname(os.path.abspath(__file__))
 
     def add(self, data):
         row = json.dumps(data)
-        with open(self.cur_dir + "\\textDataBases\\temp", "a") as f:
+        with open(cur_dir + "\\textDataBases\\temp", "a") as f:
             f.write(row + "\n")
         return True
 
     def get(self, data):
         row = json.dumps(data) + "\n"
-        with open(self.cur_dir + "\\textDataBases\\temp", "r") as f:
+        with open(cur_dir + "\\textDataBases\\temp", "r") as f:
             all_rows = f.readlines()
         return row in all_rows
 
     def delete(self, data):
         row = json.dumps(data) + "\n"
         if self.get(data):
-            with open(self.cur_dir + "\\textDataBases\\temp", "r") as f:
+            with open(cur_dir + "\\textDataBases\\temp", "r") as f:
                 all_rows = f.readlines()
             all_rows.remove(row)
-            with open(self.cur_dir + "\\textDataBases\\temp", "w") as f:
+            with open(cur_dir + "\\textDataBases\\temp", "w") as f:
                 f.writelines(all_rows)
             return True
         return False

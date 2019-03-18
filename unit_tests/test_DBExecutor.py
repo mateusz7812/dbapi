@@ -1,7 +1,7 @@
 import os
 from unittest import TestCase
 
-from DataBaseExecutors import TextBExecutor, PostgresExecutor
+from writers.DataBaseExecutors import TextBExecutor, PostgresExecutor
 
 
 class TestTextBExecutor(TestCase):

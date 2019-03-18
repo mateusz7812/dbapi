@@ -1,7 +1,7 @@
 from unittest import TestCase
 
-from SessionManager import SessionManager
-from TempDataExecutors import TextTempExecutor
+from managers.SessionManager import SessionManager
+from writers.TempDataExecutors import TextTempExecutor
 
 
 class TestSManager(TestCase):
