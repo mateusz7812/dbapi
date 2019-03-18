@@ -1,9 +1,9 @@
 from unittest import TestCase
 
-from DBManager import PostgresExecutor
+from DataBaseExecutors import PostgresExecutor
 
 
-class TestDatabasesConnections(TestCase):
+class TestPostgresConnections(TestCase):
     def test_passwords(self):
         self.exc = PostgresExecutor("passwords")
         self.exc.cur.execute('SELECT * FROM passwords where FALSE')

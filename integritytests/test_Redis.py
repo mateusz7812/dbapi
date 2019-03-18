@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from RedisManager import RExecutor
+from SessionManager import RExecutor
 
 
 class TestRedisConnections(TestCase):

@@ -17,12 +17,13 @@ class TextBExecutor(BaseDExecutor):
     def read_data(self, tableName):
         with open(cur_dir + "\\textDataBases\\" + tableName, "r") as f:
             raw_data = f.readlines()[1:]
-        data = [json.loads(row) for row in raw_data]
+        data = [json.loads(row[:-1]) for row in raw_data]
         return data
 
     def get_last_id(self, tableName):
         with open(cur_dir + "\\textDataBases\\" + tableName, "r") as f:
-            data = f.readlines()[-1]
+            data = f.readlines()
+            data = data[-1]
         id = json.loads(data)[0]
         if id == "id":
             return 0
@@ -43,25 +44,37 @@ class TextBExecutor(BaseDExecutor):
                 row.append(None)
         with open(cur_dir + "\\textDataBases\\" + tableName, "a") as f:
             f.write(json.dumps(row) + "\n")
-        return row
+        dict_row = {}
+        for cell in columns:
+            dict_row[cell] = row[columns.index(cell)]
+        return dict_row
 
     def get(self, tableName, requestData):
         columns = self.read_columns_names(tableName)
         data_table = self.read_data(tableName)
         for key in requestData.keys():
             data_table = list(filter(lambda row: row[columns.index(key)] == requestData[key], data_table))
-        return data_table
+        dict_table = []
+        for row in data_table:
+            dict_row = {}
+            for col in columns:
+                dict_row[col] = row[columns.index(col)]
+            dict_table.append(dict_row)
+        return dict_table
 
     def delete(self, tableName, requestData):
-        rows_to_delete = self.get(tableName, requestData)
-        columns = self.read_columns_names(tableName)
-        requestData = self.read_data(tableName)
-        to_save = [columns] + list(filter(lambda row: row not in rows_to_delete, requestData))
+        dicts_to_delete = self.get(tableName, requestData)
+        lists_to_delete = [list(row.values()) for row in dicts_to_delete]
+
+        all_rows = self.read_data(tableName)
+        to_save = [self.read_columns_names(tableName)]
+        to_save.extend(list(filter(lambda row: row not in lists_to_delete, all_rows)))
+
         with open(cur_dir + "\\textDataBases\\" + tableName, "w") as f:
             for row in to_save:
                 row = json.dumps(row) + "\n"
                 f.write(row)
-        return rows_to_delete
+        return dicts_to_delete
 
 
 class PostgresExecutor(BaseDExecutor):
@@ -93,7 +106,7 @@ class PostgresExecutor(BaseDExecutor):
             if row[0] == "lists":
                 return row[1:]
 
-    def add(self):
+    def add(self, tableName, data):
         fields = ", ".join(self.data.keys())
         values = [json.dumps(value).replace("\"", "\'") for value in self.data.values()]
         values = ", ".join(values)
@@ -108,7 +121,7 @@ class PostgresExecutor(BaseDExecutor):
         self.close_connection()
         return list(result)
 
-    def get(self):
+    def get(self, tableName, data):
         fields = list(self.data.keys())
         values = list(self.data.values())
         values = [json.dumps(value).replace("\"", "\'") for value in values]
@@ -120,7 +133,7 @@ class PostgresExecutor(BaseDExecutor):
         self.close_connection()
         return list(map(list, result))
 
-    def delete(self):
+    def delete(self, tableName, data):
         fields = list(self.data.keys())
         values = list(self.data.values())
         values = [json.dumps(value).replace("\"", "\'") for value in values]

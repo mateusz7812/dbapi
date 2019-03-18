@@ -9,10 +9,9 @@ from twisted.web import server
 class HttpApi(resource.Resource):
     isLeaf = True
 
-    def __init__(self, handler: BaseHandler = TaskHandler):
+    def __init__(self, handler):
         super().__init__()
         self.taskHandler = handler
-        self.taskHandler = self.taskHandler()
 
     def render_GET(self, request):
         print("GET request", request.content.read())
