@@ -76,4 +76,10 @@ class ListsProcessor(BasicProcessor):
             return self.DBManager.delete(data)
         return {"info": session_confirmed}
 
+    def edit(self, data):
+        session_confirmed = self.check(data)
+        if session_confirmed == "session correct":
+            return self.DBManager.edit(data)
+        return {"info": session_confirmed}
+
 

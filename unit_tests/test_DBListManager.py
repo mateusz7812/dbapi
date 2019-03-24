@@ -30,7 +30,10 @@ class TestDBListManager(TestCase):
 
     def test_DBListManager_delete(self):
         self.listsM.add({"user_id": 12, "name": "name", "content": "content"})
+        self.listsM.add({"user_id": 12, "name": "other", "content": "other"})
+
         result = self.listsM.delete({"user_id": 12, "name": "name"})
+
         self.assertEqual("lists deleted", result["info"])
         self.assertEqual(1, len(result["lists"]))
         self.assertEqual("name", result["lists"][0]["name"])
@@ -38,5 +41,11 @@ class TestDBListManager(TestCase):
 
         result = self.listsM.get({"user_id": 12})
         self.assertEqual(result["info"], "lists gotten")
-        self.assertEqual(len(result["lists"]), 0)
+        self.assertEqual(len(result["lists"]), 1)
 
+    def test_DBListManager_edit(self):
+        added_list = self.listsM.add({"user_id": 12, "name": "name", "content": "content"})
+        list_id = added_list["id"]
+        self.listsM.edit({"list_id": list_id, "name": "other"})
+        modified_list = self.listsM.get({"user_id": 12})["lists"][0]
+        self.assertEqual("other", modified_list["name"])

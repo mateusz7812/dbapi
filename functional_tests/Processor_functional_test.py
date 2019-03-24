@@ -63,9 +63,20 @@ class TestServer(TestCase):
         self.assertEqual(len(result["lists"]), 1)
         self.assertEqual(result["lists"][0]["name"], "testowa")
         self.assertEqual(result["lists"][0]["content"], "testowy")
+        
+        # list is being edited
+        result = self.listsP.edit({"user_id": user_id, "user_key": user_key, "list_id": list_id, "name": 'name', "content": 'content'})
+        self.assertEqual(result["info"], "list edited")
+
+        # added list change is being checked
+        result = self.listsP.get({"user_id": user_id, "user_key": user_key})
+        self.assertEqual(result["info"], "lists gotten")
+        self.assertEqual(len(result["lists"]), 1)
+        self.assertEqual(result["lists"][0]["name"], "name")
+        self.assertEqual(result["lists"][0]["content"], "content")
 
         # list is being deleted
-        result = self.listsP.delete({"user_id": user_id, "user_key": user_key, "list_id": list_id})
+        result = self.listsP.delete({"user_id": user_id, "user_key": user_key, "name": "name"})
         self.assertEqual(result["info"], "lists deleted")
 
         # lists are being showed

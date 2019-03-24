@@ -20,6 +20,8 @@ class TaskForwarder:
             return self.listP.add(request)
         elif action == "del":
             return self.listP.delete(request)
+        elif action == "edit":
+            return self.listP.edit(request)
         else:
             return {"info": "action not found"}
 

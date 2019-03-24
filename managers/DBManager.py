@@ -81,13 +81,23 @@ class ListsDBManager:
         return {"info": "list added", "id": result["id"]}
 
     def get(self, data):
-        lists = self.executor.get("lists", {"user_id": data["user_id"]})
+        data.pop("user_key")
+        lists = self.executor.get("lists", data)
         return {"info": "lists gotten", "lists": lists}
 
     def delete(self, data):
-        lists = self.get(data)["lists"]
+        lists: dict = self.executor.get("lists", {"user_id": data["user_id"], "name": data["name"]})
         deleted_lists = []
         for list in lists:
             deleted = self.executor.delete("lists", {"id": list["id"]})
             deleted_lists.extend(deleted)
         return {"info": "lists deleted", "lists": deleted_lists}
+
+    def edit(self, data):
+        list = self.executor.get("lists", {"id": data.pop("list_id")})[0]
+        old_name = list["name"]
+        for key in data.keys():
+            list[key] = data[key]
+        self.add(list)
+        self.delete({"user_id": list["user_id"], "name": old_name})
+        return {"info": "list edited"}

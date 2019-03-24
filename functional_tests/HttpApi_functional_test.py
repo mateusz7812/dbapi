@@ -71,13 +71,29 @@ class TestServer(TestCase):
             {"object": 'list', "action": 'get',
              "user_id": user_id, "user_key": user_key})
         self.assertEqual(response["info"], "lists gotten")
-        self.assertEqual(response["lists"], [{"user_id": user_id, "id": list_id, "name": 'testowa', "content": 'content'}])
+        self.assertEqual(response["lists"],
+                         [{"user_id": user_id, "id": list_id, "name": 'testowa', "content": 'content'}])
+
+        # list is being edited
+        response = self.get_response(
+            {"object": "list", "action": "edit",
+             "user_id": user_id, "user_key": user_key,
+             "list_id": list_id, "name": 'name', "content": 'content'})
+        self.assertEqual(response["info"], "list edited")
+
+        # edited list exist is being checked
+        response = self.get_response(
+            {"object": 'list', "action": 'get',
+             "user_id": user_id, "user_key": user_key})
+        self.assertEqual(response["info"], "lists gotten")
+        self.assertEqual(1, len(response["lists"]))
+        self.assertEqual(response["lists"][0]["name"], 'name')
 
         # list is being deleted
         response = self.get_response(
             {"object": 'list', "action": 'del',
              "user_id": user_id, "user_key": user_key,
-             "list_id": list_id})
+             "name": 'name'})
         self.assertEqual("lists deleted", response["info"])
 
         # lists are being showed
@@ -99,12 +115,20 @@ class TestServer(TestCase):
              "user_id": user_id, "user_key": user_key,
              "name": 'testowa', "content": 'content'})
         self.assertEqual("session not correct", response["info"])
-"""
+
+        # user is being logged in
+        response = self.get_response(
+            {"object": 'user', "action": 'login',
+             "login": 'login', "password": 'password'})
+        self.assertEqual("session added", response["info"])
+        self.assertEqual(int, type(response["user_id"]))
+        self.assertEqual(str, type(response["user_key"]))
+        user_id = response["user_id"]
+        user_key = response["user_key"]
+
         # user is being deleted
         response = self.get_response(
             {"object": 'user', "action": 'delete',
              "user_id": user_id, "user_key": user_key,
              "login": 'login', "password": 'password'})
-        print(response)
         self.assertIn(response["info"], ["user deleted"])
-"""
