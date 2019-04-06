@@ -1,12 +1,12 @@
 from unittest import TestCase
 from unittest.mock import patch
 
-from managers.DBManager import UsersDBManager, ListsDBManager
-from writers.DataBaseExecutors import TextBExecutor
-from net_Interface.Forwarder import TaskForwarder
-from Processor import UsersProcessor, ListsProcessor
-from managers.SessionManager import SessionManager
-from writers.TempDataExecutors import TextTempExecutor
+from WriteManager.DBManager import UsersDBManager, ListsDBManager
+from DataWriter.DataBaseExecutors import TextBExecutor
+from ObjectForwarder.Forwarder import TaskForwarder
+from TaskProcessor.Processor import UsersProcessor, ListsProcessor
+from WriteManager.SessionManager import SessionManager
+from DataWriter.TempDataExecutors import TextTempExecutor
 
 
 def retfunc(value):
@@ -27,7 +27,7 @@ class TestForwarder(TestCase):
     @patch('Processor.UsersProcessor.register', side_effect=retfunc)
     def test_user_register(self, test_patch):
         test_patch.return_value = test_patch
-        request = {"object": 'user', "action": 'reg',
+        request = {"object": 'user', "action": 'add',
                    "login": 'login', "password": 'password', "nick": 'nick'}
         result = self.forwarder.forward(request)
         self.assertEqual(result, {'login': 'login', 'nick': 'nick',

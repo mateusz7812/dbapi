@@ -1,8 +1,8 @@
 from unittest import TestCase
 
 
-from managers.DBManager import UsersDBManager
-from writers.DataBaseExecutors import TextBExecutor
+from WriteManager.DBManager import UsersDBManager
+from DataWriter.DataBaseExecutors import TextBExecutor
 
 
 import os
@@ -12,9 +12,9 @@ cur_dir = "\\".join(cur_dir.split("\\")[:-1])
 
 class TestDBUserManager(TestCase):
     def clear_file(self, name):
-        with open(cur_dir + "\\textDataBases\\" + name, "r") as f:
+        with open(cur_dir + "\\DataBaseFiles\\" + name, "r") as f:
             data = f.readline()
-        with open(cur_dir + "\\textDataBases\\" + name, "w") as f:
+        with open(cur_dir + "\\DataBaseFiles\\" + name, "w") as f:
             f.write(data)
 
     def setUp(self):

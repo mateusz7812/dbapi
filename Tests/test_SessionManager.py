@@ -1,7 +1,7 @@
 from unittest import TestCase
 
-from managers.SessionManager import SessionManager
-from writers.TempDataExecutors import TextTempExecutor
+from WriteManager.SessionManager import SessionManager
+from DataWriter.TempDataExecutors import TextTempExecutor
 
 
 class TestSManager(TestCase):
@@ -10,7 +10,7 @@ class TestSManager(TestCase):
         import os
         cur_dir = os.path.dirname(os.path.abspath(__file__))
         cur_dir = "\\".join(cur_dir.split("\\")[:-1])
-        with open(cur_dir + "\\textDataBases\\temp", "w") as f:
+        with open(cur_dir + "\\DataBaseFiles\\temp", "w") as f:
             f.truncate()
 
     def test_SessionManager_add(self):

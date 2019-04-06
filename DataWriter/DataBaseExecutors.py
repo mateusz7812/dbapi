@@ -2,7 +2,7 @@ import json
 import psycopg2
 import os
 
-from managers.DBManager import BaseDExecutor
+from WriteManager.DBManager import BaseDExecutor
 
 cur_dir = os.path.dirname(os.path.abspath(__file__))
 cur_dir = "\\".join(cur_dir.split("\\")[:-1])
@@ -10,19 +10,19 @@ cur_dir = "\\".join(cur_dir.split("\\")[:-1])
 
 class TextBExecutor(BaseDExecutor):
     def read_columns_names(self, tableName):
-        with open(cur_dir + "\\textDataBases\\" + tableName, "r") as f:
+        with open(cur_dir + "\\DataBaseFiles\\" + tableName, "r") as f:
             config = f.readline()
         config.replace("\n", "")
         return json.loads(config)
 
     def read_data(self, tableName):
-        with open(cur_dir + "\\textDataBases\\" + tableName, "r") as f:
+        with open(cur_dir + "\\DataBaseFiles\\" + tableName, "r") as f:
             raw_data = f.readlines()[1:]
         data = [json.loads(row[:-1]) for row in raw_data]
         return data
 
     def get_last_id(self, tableName):
-        with open(cur_dir + "\\textDataBases\\" + tableName, "r") as f:
+        with open(cur_dir + "\\DataBaseFiles\\" + tableName, "r") as f:
             data = f.readlines()
             data = data[-1]
         id = json.loads(data)[0]
@@ -43,7 +43,7 @@ class TextBExecutor(BaseDExecutor):
                 row.append(requestData[cell])
             else:
                 row.append(None)
-        with open(cur_dir + "\\textDataBases\\" + tableName, "a") as f:
+        with open(cur_dir + "\\DataBaseFiles\\" + tableName, "a") as f:
             f.write(json.dumps(row) + "\n")
         dict_row = {}
         for cell in columns:
@@ -71,7 +71,7 @@ class TextBExecutor(BaseDExecutor):
         to_save = [self.read_columns_names(tableName)]
         to_save.extend(list(filter(lambda row: row not in lists_to_delete, all_rows)))
 
-        with open(cur_dir + "\\textDataBases\\" + tableName, "w") as f:
+        with open(cur_dir + "\\DataBaseFiles\\" + tableName, "w") as f:
             for row in to_save:
                 row = json.dumps(row) + "\n"
                 f.write(row)

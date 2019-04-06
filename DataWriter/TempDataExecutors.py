@@ -2,7 +2,7 @@ import json
 
 import redis
 
-from managers.SessionManager import SessionExecutorBase
+from WriteManager.SessionManager import SessionExecutorBase
 
 import os
 
@@ -44,23 +44,23 @@ class TextTempExecutor(SessionExecutorBase):
 
     def add(self, data):
         row = json.dumps(data)
-        with open(cur_dir + "\\textDataBases\\temp", "a") as f:
+        with open(cur_dir + "\\DataBaseFiles\\temp", "a") as f:
             f.write(row + "\n")
         return True
 
     def get(self, data):
         row = json.dumps(data) + "\n"
-        with open(cur_dir + "\\textDataBases\\temp", "r") as f:
+        with open(cur_dir + "\\DataBaseFiles\\temp", "r") as f:
             all_rows = f.readlines()
         return row in all_rows
 
     def delete(self, data):
         row = json.dumps(data) + "\n"
         if self.get(data):
-            with open(cur_dir + "\\textDataBases\\temp", "r") as f:
+            with open(cur_dir + "\\DataBaseFiles\\temp", "r") as f:
                 all_rows = f.readlines()
             all_rows.remove(row)
-            with open(cur_dir + "\\textDataBases\\temp", "w") as f:
+            with open(cur_dir + "\\DataBaseFiles\\temp", "w") as f:
                 f.writelines(all_rows)
             return True
         return False

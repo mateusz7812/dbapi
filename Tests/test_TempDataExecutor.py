@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from writers.TempDataExecutors import TextTempExecutor
+from DataWriter.TempDataExecutors import TextTempExecutor
 
 
 class TestTestTempExecutor(TestCase):
@@ -9,7 +9,7 @@ class TestTestTempExecutor(TestCase):
         import os
         cur_dir = os.path.dirname(os.path.abspath(__file__))
         cur_dir = "\\".join(cur_dir.split("\\")[:-1])
-        with open(cur_dir+"\\textDataBases\\temp", "w") as f:
+        with open(cur_dir+"\\DataBaseFiles\\temp", "w") as f:
             f.truncate()
 
     def test_add(self):

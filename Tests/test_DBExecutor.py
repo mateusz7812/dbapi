@@ -1,7 +1,7 @@
 import os
 from unittest import TestCase
 
-from writers.DataBaseExecutors import TextBExecutor, PostgresExecutor
+from DataWriter.DataBaseExecutors import TextBExecutor, PostgresExecutor
 
 
 class TestTextBExecutor(TestCase):
@@ -9,9 +9,9 @@ class TestTextBExecutor(TestCase):
         self.executor = TextBExecutor()
         cur_dir = os.path.dirname(os.path.abspath(__file__))
         cur_dir = "\\".join(cur_dir.split("\\")[:-1])
-        with open(cur_dir + "\\textDataBases\\" + "test", "r") as f:
+        with open(cur_dir + "\\DataBaseFiles\\" + "test", "r") as f:
             config = f.readline()
-        with open(cur_dir + "\\textDataBases\\" + "test", "w") as f:
+        with open(cur_dir + "\\DataBaseFiles\\" + "test", "w") as f:
             f.write(config)
 
     def test_add_to_table(self):

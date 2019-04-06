@@ -1,8 +1,8 @@
 import os
 from unittest import TestCase
 
-from managers.DBManager import ListsDBManager
-from writers.DataBaseExecutors import TextBExecutor
+from WriteManager.DBManager import ListsDBManager
+from DataWriter.DataBaseExecutors import TextBExecutor
 
 cur_dir = os.path.dirname(os.path.abspath(__file__))
 cur_dir = "\\".join(cur_dir.split("\\")[:-1])
@@ -12,9 +12,9 @@ class TestDBListManager(TestCase):
     def setUp(self):
         executor = TextBExecutor()
         self.listsM = ListsDBManager(executor)
-        with open(cur_dir + "\\textDataBases\\" + "lists", "r") as f:
+        with open(cur_dir + "\\DataBaseFiles\\" + "lists", "r") as f:
             data = f.readline()
-        with open(cur_dir + "\\textDataBases\\" + "lists", "w") as f:
+        with open(cur_dir + "\\DataBaseFiles\\" + "lists", "w") as f:
             f.write(data)
 
     def test_DBListManager_add(self):

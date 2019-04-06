@@ -1,19 +1,19 @@
 import os
 from unittest import TestCase
 
-from managers.DBManager import UsersDBManager, ListsDBManager
-from writers.DataBaseExecutors import TextBExecutor
-from Processor import UsersProcessor, ListsProcessor
-from managers.SessionManager import SessionManager
-from writers.TempDataExecutors import TextTempExecutor
+from WriteManager.DBManager import UsersDBManager, ListsDBManager
+from DataWriter.DataBaseExecutors import TextBExecutor
+from TaskProcessor.Processor import UsersProcessor, ListsProcessor
+from WriteManager.SessionManager import SessionManager
+from DataWriter.TempDataExecutors import TextTempExecutor
 
 
 def clear_file(name):
     cur_dir = os.path.dirname(os.path.abspath(__file__))
     cur_dir = "\\".join(cur_dir.split("\\")[:-1])
-    with open(cur_dir + "\\textDataBases\\" + name, "r") as f:
+    with open(cur_dir + "\\DataBaseFiles\\" + name, "r") as f:
         config = f.readline()
-    with open(cur_dir + "\\textDataBases\\" + name, "w") as f:
+    with open(cur_dir + "\\DataBaseFiles\\" + name, "w") as f:
         f.truncate()
         f.write(config)
 
