@@ -5,7 +5,7 @@ from WriteManager.DBManager import UsersDBManager, ListsDBManager
 from Tests.functions_for_tests import get_response
 from DataWriter.DataBaseExecutors import TextBExecutor
 from ObjectForwarder.Forwarder import TaskForwarder
-from RequestTaker.Http import HttpApi
+from RequestTaker.TwistedTaker import TwistedTaker
 from TaskProcessor.Processor import UsersProcessor, ListsProcessor
 from WriteManager.SessionManager import SessionManager
 from DataWriter.TempDataExecutors import TextTempExecutor
@@ -27,7 +27,7 @@ class TestAPI(TestCase):
 
         forwarder = TaskForwarder(usersP=usersP, listsP=listsP)
 
-        httpApi = HttpApi(forwarder)
+        httpApi = TwistedTaker(forwarder)
         self.server = Process(target=httpApi.run)
         self.server.start()
 

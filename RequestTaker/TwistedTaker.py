@@ -4,13 +4,16 @@ from twisted.web import resource
 from twisted.internet import reactor
 from twisted.web import server
 
+from RequestTaker.TakerInterface import Taker
+from Requests.RequestGeneratorInterface import RequestGenerator
 
-class HttpApi(resource.Resource):
+
+class TwistedTaker(Taker, resource.Resource):
     isLeaf = True
 
-    def __init__(self, forwarder):
-        super().__init__()
-        self.forwarder = forwarder
+    def __init__(self, request_generator: RequestGenerator):
+        Taker.__init__(self, request_generator)
+        resource.Resource.__init__(self)
 
     def render_GET(self, request):
         print("GET request", request.content.read().decode("utf-8"))
@@ -18,16 +21,19 @@ class HttpApi(resource.Resource):
 
     def render_POST(self, request):
         data = request.content.read().decode("utf-8")
-        task = json.loads(data)
+        loaded_data = json.loads(data)
         try:
-            response = self.forwarder.forward(task)
+            response = self.take(loaded_data)
         except Exception as e:
             response = "internal error:\n\t" + str(e)
         print("\nPOST:", data, "\n", response, "\n")
         response = json.dumps(response)
         return bytes(response, "utf-8")
 
-    def run(self):
+    def take(self, data):
+        return data
+
+    def start(self):
         site = server.Site(self)
         reactor.listenTCP(8080, site)
         return reactor.run()
