@@ -12,8 +12,8 @@ from Responses.ResponseGeneratorInterface import ResponseGenerator
 class TwistedTaker(Taker, resource.Resource):
     isLeaf = True
 
-    def __init__(self, request_generator: RequestGenerator, response_generator: ResponseGenerator):
-        Taker.__init__(self, request_generator, response_generator)
+    def __init__(self, request_generator: RequestGenerator, response_generator: ResponseGenerator, forwarder):
+        Taker.__init__(self, request_generator, response_generator, forwarder)
         resource.Resource.__init__(self)
 
     def render_GET(self, request):

@@ -31,11 +31,9 @@ class TestBasicResponseGenerator(TestCase):
 
         self.assertEqual("new", response.status)
         self.assertEqual(self.request, response.request)
-        self.assertEqual([], response.required_requests)
 
     def test_generate(self):
         response = self.generator.generate(self.request)
 
         self.assertEqual("new", response.status)
         self.assertEqual(self.request, response.request)
-        self.assertEqual([], response.required_requests)

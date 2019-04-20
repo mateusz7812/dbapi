@@ -10,5 +10,8 @@ class Processor:
     def add_manager(self, manager: Manager):
         self.managers.append(manager)
 
-    def process(self, request: Request):
+    def process(self, response):
+        raise NotImplementedError
+
+    def get_required_requests(self, response):
         raise NotImplementedError

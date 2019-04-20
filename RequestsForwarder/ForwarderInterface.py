@@ -8,6 +8,6 @@ class Forwarder:
     def add_processor(self, processor: Processor):
         self.processors.append(processor)
 
-    def forward(self):
+    def forward(self, response):
         raise NotImplementedError
 
