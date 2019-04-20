@@ -1,25 +1,33 @@
 import json
+import time
 from unittest import TestCase
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 
 import requests
 
 from Main import Main
-from ObjectForwarder.ForwarderInterface import Forwarder
+from RequestsForwarder.ForwarderInterface import Forwarder
 from RequestTaker.TwistedTaker import TwistedTaker
+from Requests.RequestGeneratorInterface import RequestGenerator
+from Responses.ResponseGeneratorInterface import ResponseGenerator
 
-taker = TwistedTaker
-forwarder = Forwarder
+
+class MockTwistedTaker(TwistedTaker):
+    def take(self, data):
+        return data
 
 
-def retfunc(value):
-    return value
+forawrder = Forwarder()
+requestGenerator = RequestGenerator()
+responseGenerator = ResponseGenerator([forawrder])
+taker = MockTwistedTaker(requestGenerator, responseGenerator)
 
 
 class TestTaker(TestCase):
     def setUp(self):
-        self.program = Main([forwarder], [taker])
+        self.program = Main([taker])
         self.program.start()
+        time.sleep(0.5)
 
     def tearDown(self):
         self.program.stop()
@@ -28,10 +36,9 @@ class TestTaker(TestCase):
         response = requests.get("http://127.0.0.1:8080")
         self.assertEqual(200, response.status_code)
 
-    @patch('RequestTaker.TwistedTaker.TwistedTaker.take', side_effect=retfunc)
-    def test_taking(self, test_patch):
+    def test_taking(self):
         data = {
-            "user": None,
+            "account": None,
             "object": "user",
             "action": "add",
             "data": {

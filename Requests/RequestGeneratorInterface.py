@@ -1,6 +1,10 @@
-class RequestGenerator:
-    def __init__(self, forwarders: []):
-        self.forwarders = forwarders
+from Requests.RequestInterface import Request
 
-    def generate_request(self, data):
+
+class RequestGenerator:
+    def __init__(self):
+        self.request_type = None
+
+    def generate(self, data: {}):
         raise NotImplementedError
+

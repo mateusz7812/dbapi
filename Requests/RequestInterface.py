@@ -1,12 +1,11 @@
-from Objects.ObjectInterface import Object
+from Objects.DataObjectInterface import DataObject
 
 
 class Request:
-    def __init__(self, account: Object, object: Object, action: str):
-        if account.type == "account":
-            self.account = account
-        self.object = object
+    def __init__(self, account: DataObject, data_object: DataObject, action: str):
+        self.account = account
+        self.object = data_object
         self.action = action
 
-    def validate(self):
-        raise NotImplementedError
+
+

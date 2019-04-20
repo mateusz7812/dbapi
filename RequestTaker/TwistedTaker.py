@@ -6,13 +6,14 @@ from twisted.web import server
 
 from RequestTaker.TakerInterface import Taker
 from Requests.RequestGeneratorInterface import RequestGenerator
+from Responses.ResponseGeneratorInterface import ResponseGenerator
 
 
 class TwistedTaker(Taker, resource.Resource):
     isLeaf = True
 
-    def __init__(self, request_generator: RequestGenerator):
-        Taker.__init__(self, request_generator)
+    def __init__(self, request_generator: RequestGenerator, response_generator: ResponseGenerator):
+        Taker.__init__(self, request_generator, response_generator)
         resource.Resource.__init__(self)
 
     def render_GET(self, request):
@@ -22,16 +23,13 @@ class TwistedTaker(Taker, resource.Resource):
     def render_POST(self, request):
         data = request.content.read().decode("utf-8")
         loaded_data = json.loads(data)
-        try:
-            response = self.take(loaded_data)
-        except Exception as e:
-            response = "internal error:\n\t" + str(e)
+        # try:
+        response = self.take(loaded_data)
+        # except Exception as e:
+        #     response = "internal error:\n\t" + str(e)
         print("\nPOST:", data, "\n", response, "\n")
         response = json.dumps(response)
         return bytes(response, "utf-8")
-
-    def take(self, data):
-        return data
 
     def start(self):
         site = server.Site(self)

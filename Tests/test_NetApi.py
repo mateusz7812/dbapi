@@ -4,7 +4,7 @@ from unittest import TestCase
 from WriteManager.DBManager import UsersDBManager, ListsDBManager
 from Tests.functions_for_tests import get_response
 from DataWriter.DataBaseExecutors import TextBExecutor
-from ObjectForwarder.Forwarder import TaskForwarder
+from RequestsForwarder.Forwarder import TaskForwarder
 from RequestTaker.TwistedTaker import TwistedTaker
 from TaskProcessor.Processor import UsersProcessor, ListsProcessor
 from WriteManager.SessionManager import SessionManager

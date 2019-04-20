@@ -10,3 +10,4 @@ class Forwarder:
 
     def forward(self):
         raise NotImplementedError
+

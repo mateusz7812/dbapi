@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 from WriteManager.DBManager import UsersDBManager, ListsDBManager
 from DataWriter.DataBaseExecutors import TextBExecutor
-from ObjectForwarder.Forwarder import TaskForwarder
+from RequestsForwarder.Forwarder import TaskForwarder
 from TaskProcessor.Processor import UsersProcessor, ListsProcessor
 from WriteManager.SessionManager import SessionManager
 from DataWriter.TempDataExecutors import TextTempExecutor
@@ -24,7 +24,7 @@ class TestForwarder(TestCase):
         listsP = ListsProcessor(listsDBM, sessionsM)
         self.forwarder = TaskForwarder(usersP=usersP, listsP=listsP)
 
-    @patch('Processor.UsersProcessor.register', side_effect=retfunc)
+    @patch('TaskProcessor.Processor.UsersProcessor.register', side_effect=retfunc)
     def test_user_register(self, test_patch):
         test_patch.return_value = test_patch
         request = {"object": 'user', "action": 'add',
