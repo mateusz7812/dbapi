@@ -3,11 +3,13 @@ from WriteManager.ManagerInterface import Manager
 
 
 class Processor:
-    def __init__(self, name):
-        self.name = name
+    name: str
+
+    def __init__(self, request_generator):
+        self.request_generator = request_generator()
         self.managers = []
 
-    def add_manager(self, manager: Manager):
+    def add_manager(self, manager):
         self.managers.append(manager)
 
     def process(self, response):

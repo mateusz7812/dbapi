@@ -5,13 +5,12 @@ from twisted.internet import reactor
 from twisted.web import server
 
 from RequestTaker.TakerInterface import Taker
-from Requests.RequestGeneratorInterface import RequestGenerator
 
 
 class TwistedTaker(Taker, resource.Resource):
     isLeaf = True
 
-    def __init__(self, request_generator: RequestGenerator, forwarder):
+    def __init__(self, request_generator, forwarder):
         Taker.__init__(self, request_generator, forwarder)
         resource.Resource.__init__(self)
 

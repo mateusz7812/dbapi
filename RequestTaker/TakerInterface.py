@@ -4,7 +4,7 @@ from Requests.RequestGeneratorInterface import RequestGenerator
 class Taker:
     def __init__(self, request_generator, forwarder):
         self.forwarder = forwarder
-        self.requestGenerator = request_generator
+        self.requestGenerator = request_generator()
 
     def start(self):
         raise NotImplementedError

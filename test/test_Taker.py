@@ -1,7 +1,6 @@
 import json
 import time
 from unittest import TestCase
-from unittest.mock import patch, MagicMock
 
 import requests
 
@@ -19,7 +18,7 @@ class MockTwistedTaker(TwistedTaker):
 
 responseGenerator = ResponseGenerator
 forwarder = Forwarder(responseGenerator)
-requestGenerator = RequestGenerator()
+requestGenerator = RequestGenerator
 taker = MockTwistedTaker(requestGenerator, forwarder)
 
 
