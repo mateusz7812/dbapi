@@ -7,12 +7,11 @@ from Responses.BasicResponse import BasicResponse
 from Responses.BasicResponseGenerator import BasicResponseGenerator
 
 generator = BasicResponseGenerator
-forwarders = [Forwarder()]
 
 
 class TestBasicResponseGenerator(TestCase):
     def setUp(self):
-        self.generator = generator(forwarders)
+        self.generator = generator()
 
         data = {
             "account": {"type": "anonymous"},
@@ -31,9 +30,11 @@ class TestBasicResponseGenerator(TestCase):
 
         self.assertEqual("new", response.status)
         self.assertEqual(self.request, response.request)
+        self.assertEqual({}, response.result)
 
     def test_generate(self):
         response = self.generator.generate(self.request)
 
         self.assertEqual("new", response.status)
         self.assertEqual(self.request, response.request)
+        self.assertEqual({}, response.result)

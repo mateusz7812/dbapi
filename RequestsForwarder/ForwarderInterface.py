@@ -2,10 +2,11 @@ from TaskProcessor.ProcessorInterface import Processor
 
 
 class Forwarder:
-    def __init__(self):
+    def __init__(self, response_generator):
+        self.response_generator = response_generator()
         self.processors = []
 
-    def add_processor(self, processor: Processor):
+    def add_processor(self, processor):
         self.processors.append(processor)
 
     def forward(self, response):

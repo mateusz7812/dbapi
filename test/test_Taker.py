@@ -17,10 +17,10 @@ class MockTwistedTaker(TwistedTaker):
         return data
 
 
-forwarder = Forwarder()
+responseGenerator = ResponseGenerator
+forwarder = Forwarder(responseGenerator)
 requestGenerator = RequestGenerator()
-responseGenerator = ResponseGenerator()
-taker = MockTwistedTaker(requestGenerator, responseGenerator, forwarder)
+taker = MockTwistedTaker(requestGenerator, forwarder)
 
 
 class TestTaker(TestCase):
