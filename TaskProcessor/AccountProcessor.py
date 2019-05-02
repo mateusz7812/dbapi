@@ -12,17 +12,25 @@ class AccountProcessor(Processor):
         elif response.request.action == "get":
             return []
         elif response.request.action == "del":
-            required = self.request_generator.generate(
-                {"account": {"type": "internal"}, "object": response.request.object, "action": "get"})
-            return [required]
+            return []
 
     def process(self, response):
         data = copy.deepcopy(response.request.object)
         data.pop("type")
-        if "login" in data.keys() and "password" in data.keys():
-            self.managers[0].manage(response.request.action, data)
-            response.status = "handled"
-        else:
+
+        if not ("login" in data.keys() and "password" in data.keys()):
             response.status = "failed"
             response.result["error"] = "no login/password"
+            return response
+
+        if response.request.action == "add" and "id" not in data.keys():
+            rows = self.managers[0].manage("get", {})
+            if len(rows):
+                row = rows[0]
+                last_id = row["id"]
+            else:
+                last_id = 0
+            data["id"] = last_id + 1
+        response.result["objects"] = self.managers[0].manage(response.request.action, data)
+        response.status = "handled"
         return response

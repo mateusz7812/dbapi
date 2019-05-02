@@ -7,7 +7,7 @@ class Manager:
     def __init__(self):
         self.writers = {}
 
-    def add_writer(self, writer: Writer):
+    def add_writer(self, writer):
         self.writers[writer.table] = writer
 
     def manage(self, action, data):

@@ -40,18 +40,60 @@ class TestAccountProcessor(TestCase):
 
         self.response.request.action = "del"
         requireds = self.processor.get_required_requests(self.response)
+        self.assertEqual([], requireds)
 
-        self.assertEqual(1, len(requireds))
-        prepared_request = BasicRequest({"type": "internal"},
-                                        {"type": "account", "login": "test", "password": "test"},
-                                        "get")
-        self.assertTrue(isinstance(requireds[0], Request))
-        self.assertEqual(prepared_request.action, requireds[0].action)
+    def test_process_add_first(self):
+        return_value = [{'id': 10, 'login': 'other', 'password': 'test'}]
 
-    def test_process(self):
+        def ret_func(action, data):
+            if action == "get":
+                return return_value
+
+        self.manager.manage.side_effect = ret_func
+
         taken_response = self.processor.process(self.response)
-        self.assertEqual(('add', {'login': 'test', 'password': 'test'}), self.manager.manage.call_args[0])
+        self.assertEqual(('add', {"id": 11, 'login': 'test', 'password': 'test'}), self.manager.manage.call_args[0])
         self.assertEqual("handled", taken_response.status)
+
+    def test_process_add_second(self):
+        return_value = []
+
+        def ret_func(action, data):
+            if action == "get":
+                return return_value
+
+        self.manager.manage.side_effect = ret_func
+
+        taken_response = self.processor.process(self.response)
+        self.assertEqual(('add', {"id": 1, 'login': 'test', 'password': 'test'}), self.manager.manage.call_args[0])
+        self.assertEqual("handled", taken_response.status)
+
+    def test_process_add_same(self):
+        return_value = [{'id': 10, 'login': 'test', 'password': 'test'}]
+
+        def ret_func(action, data):
+            if action == "get":
+                return return_value
+
+        self.manager.manage.side_effect = ret_func
+        taken_response = self.processor.process(self.response)
+        self.assertEqual(('add', {"id": 11, 'login': 'test', 'password': 'test'}), self.manager.manage.call_args[0])
+        self.assertEqual("failed", taken_response.status)
+        self.assertEqual("taken login/nick", taken_response.result["error"])
+
+    def test_process_get(self):
+        self.response.request.action = "get"
+        self.manager.manage.return_value = [{'id': 10, 'login': 'test', 'password': 'test'}]
+
+        taken_response = self.processor.process(self.response)
+
+        self.assertEqual(('get', {'login': 'test', 'password': 'test'}), self.manager.manage.call_args[0])
+        self.assertEqual("handled", taken_response.status)
+        objects = taken_response.result["objects"]
+        self.assertEqual(1, len(objects))
+        self.assertEqual("test", objects[0]["login"])
+        self.assertEqual("test", objects[0]["password"])
+        self.assertEqual(int, type(objects[0]["id"]))
 
     def test_process_fail(self):
         self.response.request.object.pop("login")

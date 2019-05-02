@@ -20,8 +20,8 @@ class TestBasicRequestGenerator(TestCase):
             "action": "add",
         }
 
-        dataObject = data["object"]
         accountObject = data["account"]
+        dataObject = data["object"]
         request = BasicRequest(accountObject, dataObject, data["action"])
 
         self.assertEqual(request.account, {"type": "anonymous"})

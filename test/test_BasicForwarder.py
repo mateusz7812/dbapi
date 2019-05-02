@@ -15,12 +15,12 @@ class TestForwarder(TestCase):
         self.responseGenerator = responseGenerator()
         self.forwarder = forwarder(responseGenerator)
 
-        dataObject = {"type": "account",
-                      "login": "test",
-                      "password": "test"}
+        data_object = {"type": "account",
+                       "login": "test",
+                       "password": "test"}
 
-        accountObject = {"type": "anonymous"}
-        self.request = BasicRequest(accountObject, dataObject, "add")
+        account_object = {"type": "anonymous"}
+        self.request = BasicRequest(account_object, data_object, "add")
 
         def process(response):
             response.status = "handled"
@@ -47,9 +47,9 @@ class TestForwarder(TestCase):
 
         self.forwarder.add_processor(self.account_processor_mock)
         session_processor_mock = Mock()
-        dataObject = {"type": "account", "login": "test", "password": "test"}
-        accountObject = {"type": "anonymous"}
-        session_processor_mock.get_required_requests.return_value = [BasicRequest(accountObject, dataObject, "get")]
+        data_object = {"type": "account", "login": "test", "password": "test"}
+        account_object = {"type": "anonymous"}
+        session_processor_mock.get_required_requests.return_value = [BasicRequest(account_object, data_object, "get")]
         session_processor_mock.process = process
         session_processor_mock.name = "session"
         self.forwarder.add_processor(session_processor_mock)
