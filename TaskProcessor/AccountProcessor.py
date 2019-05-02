@@ -23,14 +23,28 @@ class AccountProcessor(Processor):
             response.result["error"] = "no login/password"
             return response
 
-        if response.request.action == "add" and "id" not in data.keys():
-            rows = self.managers[0].manage("get", {})
-            if len(rows):
-                row = rows[0]
-                last_id = row["id"]
-            else:
-                last_id = 0
-            data["id"] = last_id + 1
+        if response.request.action == "add":
+            same_login_users = self.managers[0].manage("get", {"login": data["login"]})
+            if same_login_users:
+                response.status = "failed"
+                response.result["error"] = "taken login"
+                return response
+
+            if "nick" in data.keys():
+                same_nick_users = self.managers[0].manage("get", {"nick": data["nick"]})
+                if same_nick_users:
+                    response.status = "failed"
+                    response.result["error"] = "taken nick"
+                    return response
+
+            if "id" not in data.keys():
+                rows = self.managers[0].manage("get", {})
+                if len(rows):
+                    row = rows[0]
+                    last_id = row["id"]
+                else:
+                    last_id = 0
+                data["id"] = last_id + 1
         response.result["objects"] = self.managers[0].manage(response.request.action, data)
         response.status = "handled"
         return response

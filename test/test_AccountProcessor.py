@@ -47,13 +47,16 @@ class TestAccountProcessor(TestCase):
 
         def ret_func(action, data):
             if action == "get":
-                return return_value
+                if data == {"login": "test"}:
+                    return []
+                else:
+                    return return_value
 
         self.manager.manage.side_effect = ret_func
 
         taken_response = self.processor.process(self.response)
-        self.assertEqual(('add', {"id": 11, 'login': 'test', 'password': 'test'}), self.manager.manage.call_args[0])
         self.assertEqual("handled", taken_response.status)
+        self.assertEqual(('add', {"id": 11, 'login': 'test', 'password': 'test'}), self.manager.manage.call_args[0])
 
     def test_process_add_second(self):
         return_value = []
@@ -77,9 +80,8 @@ class TestAccountProcessor(TestCase):
 
         self.manager.manage.side_effect = ret_func
         taken_response = self.processor.process(self.response)
-        self.assertEqual(('add', {"id": 11, 'login': 'test', 'password': 'test'}), self.manager.manage.call_args[0])
         self.assertEqual("failed", taken_response.status)
-        self.assertEqual("taken login/nick", taken_response.result["error"])
+        self.assertEqual("taken login", taken_response.result["error"])
 
     def test_process_get(self):
         self.response.request.action = "get"
