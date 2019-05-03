@@ -43,14 +43,13 @@ class TestAccountProcessor(TestCase):
         self.assertEqual([], requireds)
 
     def test_process_add_first(self):
-        return_value = [{'id': 10, 'login': 'other', 'password': 'test'}]
 
         def ret_func(action, data):
             if action == "get":
                 if data == {"login": "test"}:
                     return []
                 else:
-                    return return_value
+                    return [{'id': 10, 'login': 'other', 'password': 'test'}]
 
         self.manager.manage.side_effect = ret_func
 

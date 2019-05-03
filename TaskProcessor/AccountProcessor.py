@@ -7,12 +7,7 @@ class AccountProcessor(Processor):
     name = "account"
 
     def get_required_requests(self, response):
-        if response.request.action == "add":
-            return []
-        elif response.request.action == "get":
-            return []
-        elif response.request.action == "del":
-            return []
+        return []
 
     def process(self, response):
         data = copy.deepcopy(response.request.object)

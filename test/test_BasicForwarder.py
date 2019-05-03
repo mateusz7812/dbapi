@@ -41,7 +41,7 @@ class TestForwarder(TestCase):
     def test_forward_with_required(self):
         def process(response):
             response.status = "handled"
-            response.result["user_id"] = response.request.object["user_id"]
+            response.result["user_id"] = response.request.required["account"]["user_id"]
             response.result["user_key"] = "abcdefgh"
             return response
 
