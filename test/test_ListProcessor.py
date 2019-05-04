@@ -27,7 +27,7 @@ class TestListProcessor(TestCase):
                                                            ["buy milk", "drink milk", "repeat"])},
                                                        "add"))
 
-        self.new_response.request.required["account"] = [{"id": 1, "login": "test", "password": "test"}]
+        self.new_response.request.required["account"] = {"objects": [{"id": 1, "login": "test", "password": "test"}]}
 
     def test_Processor(self):
         self.assertEqual("list", self.processor.name)
@@ -88,7 +88,7 @@ class TestListProcessor(TestCase):
                       taken_response.result["objects"])
 
     def test_no_user(self):
-        self.new_response.request.required["account"] = []
+        self.new_response.request.required["account"]["objects"] = []
 
         taken_response = self.processor.process(self.new_response)
 

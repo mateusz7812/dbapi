@@ -15,12 +15,12 @@ class ListProcessor(Processor):
         data = copy.deepcopy(response.request.object)
         data.pop("type")
 
-        if len(response.request.required["account"]) != 1:
+        if len(response.request.required["account"]["objects"]) != 1:
             response.status = "failed"
             response.result["error"] = "user not found"
             return response
 
-        data["user_id"] = response.request.required["account"][0]["id"]
+        data["user_id"] = response.request.required["account"]["objects"][0]["id"]
 
         if response.request.action == "add":
             if "name" not in data.keys():

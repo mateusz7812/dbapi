@@ -11,7 +11,10 @@ from Requests.RequestGeneratorBasic import BasicRequestGenerator
 from RequestsForwarder.BasicForwarder import BasicForwarder
 from Responses.BasicResponseGenerator import BasicResponseGenerator
 from TaskProcessor.AccountProcessor import AccountProcessor
+from TaskProcessor.ListProcessor import ListProcessor
 from WriteManager.AccountsManager import AccountsManager
+from WriteManager.ListsManager import ListsManager
+from WriteManager.ManagerInterface import Manager
 
 
 def get_response(data):
@@ -23,12 +26,21 @@ def get_response(data):
 requestGenerator = BasicRequestGenerator
 responseGenerator = BasicResponseGenerator
 forwarder = BasicForwarder(responseGenerator)
+
 account_processor = AccountProcessor(requestGenerator)
 account_manager = AccountsManager()
 accounts_writer = TextWriter("accounts")
 account_manager.add_writer(accounts_writer)
 account_processor.add_manager(account_manager)
 forwarder.add_processor(account_processor)
+
+list_processor = ListProcessor(requestGenerator)
+lists_manager = ListsManager()
+lists_writer = TextWriter("lists")
+lists_manager.add_writer(lists_writer)
+list_processor.add_manager(lists_manager)
+forwarder.add_processor(list_processor)
+
 taker = TwistedTaker(requestGenerator, forwarder)
 
 
@@ -36,7 +48,7 @@ class FunctionalTests(TestCase):
     def setUp(self):
         self.main = Main([taker])
         self.main.start()
-
+        lists_writer.delete({})
         accounts_writer.delete({})
         sleep(0.5)
 
@@ -58,10 +70,6 @@ class FunctionalTests(TestCase):
                         "content": json.dumps(["buy milk", "drink milk", "throw away box"])},
              "action": 'add'})
         self.assertEqual("handled", response["status"])
-        self.assertEqual(1, len(response["objects"]))
-        list_object = response["objects"][0]
-        self.assertEqual("name", list_object["name"])
-        self.assertEqual(["buy milk", "drink milk", "throw away box"], json.loads(list_object["content"]))
 
         # list get
         response = get_response(
