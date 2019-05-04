@@ -48,7 +48,7 @@ class TestTextWriter(TestCase):
 
         result = self.writer.delete({"id": 10})
 
+        m.return_value.__enter__.return_value.readlines.assert_called()
+        m.return_value.__enter__.return_value.write.assert_called_once_with(json.dumps({"id": 19, "data": "fgsdga"}) + "\n")
         self.assertEqual([{"id": 10, "data": "asdfgdsa"}], result)
         self.assertEqual([("test", "r",), ("test", "w",)], [tuple(args[0]) for args in m.call_args_list])
-        m.return_value.__enter__.return_value.write.assert_called_once_with(json.dumps({"id": 19, "data": "fgsdga"}) + "\n")
-        m.return_value.__enter__.return_value.readlines.assert_called()

@@ -27,6 +27,7 @@ class TestBasicRequestGenerator(TestCase):
         self.assertEqual(request.account, {"type": "anonymous"})
         self.assertEqual(request.object, {"type": "account", "login": "test", "password": "test"})
         self.assertEqual(request.action, "add")
+        self.assertEqual(request.required, {})
 
     def test_generate(self):
         data = {
@@ -46,3 +47,4 @@ class TestBasicRequestGenerator(TestCase):
         self.assertEqual(expected_request.account, request.account)
         self.assertEqual(expected_request.object, request.object)
         self.assertEqual(expected_request.action, request.action)
+        self.assertEqual(expected_request.required, request.required)

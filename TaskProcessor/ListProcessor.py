@@ -14,8 +14,25 @@ class ListProcessor(Processor):
     def process(self, response):
         data = copy.deepcopy(response.request.object)
         data.pop("type")
+
+        if len(response.request.required["account"]) != 1:
+            response.status = "failed"
+            response.result["error"] = "user not found"
+            return response
+
+        data["user_id"] = response.request.required["account"][0]["id"]
+
         if response.request.action == "add":
-            data["user_id"] = response.request.required["account"][0]["id"]
+            if "name" not in data.keys():
+                response.status = "failed"
+                response.result["error"] = "name not found"
+                return response
+
+            same_name_lists = self.managers[0].manage("get", {"user_id": data["user_id"], "name": data["name"]})
+            if same_name_lists:
+                response.status = "failed"
+                response.result["error"] = "taken name"
+                return response
 
             if "id" not in data.keys():
                 rows = self.managers[0].manage("get", {})
