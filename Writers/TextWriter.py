@@ -1,6 +1,6 @@
 import json
 
-from DataWriter.WriterInterface import Writer
+from Writers.WriterInterface import Writer
 
 
 def match(values, line):

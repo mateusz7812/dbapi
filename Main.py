@@ -1,7 +1,16 @@
 from multiprocessing import Process
 
-from RequestsForwarder.ForwarderInterface import Forwarder
-from RequestTaker.TakerInterface import Taker
+from Forwarders.BasicForwarder import BasicForwarder
+from Forwarders.ForwarderInterface import Forwarder
+from Managers.AccountsManager import AccountsManager
+from Managers.ListsManager import ListsManager
+from Processors.AccountProcessor import AccountProcessor
+from Processors.ListProcessor import ListProcessor
+from Requests.RequestGeneratorBasic import BasicRequestGenerator
+from Responses.BasicResponseGenerator import BasicResponseGenerator
+from Takers.TakerInterface import Taker
+from Takers.TwistedTaker import TwistedTaker
+from Writers.TextWriter import TextWriter
 
 
 class Main:
@@ -27,5 +36,24 @@ class Main:
 
 
 if __name__ == "__main__":
-    program = Main()
+    requestGenerator = BasicRequestGenerator
+    responseGenerator = BasicResponseGenerator
+    forwarder = BasicForwarder(responseGenerator)
+
+    account_processor = AccountProcessor(requestGenerator)
+    account_manager = AccountsManager()
+    accounts_writer = TextWriter("accounts")
+    account_manager.add_writer(accounts_writer)
+    account_processor.add_manager(account_manager)
+    forwarder.add_processor(account_processor)
+
+    list_processor = ListProcessor(requestGenerator)
+    lists_manager = ListsManager()
+    lists_writer = TextWriter("lists")
+    lists_manager.add_writer(lists_writer)
+    list_processor.add_manager(lists_manager)
+    forwarder.add_processor(list_processor)
+
+    taker = TwistedTaker(requestGenerator, forwarder)
+    program = Main([taker])
     program.start()

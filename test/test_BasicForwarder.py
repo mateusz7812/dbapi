@@ -3,7 +3,7 @@ from unittest import TestCase
 from unittest.mock import patch, Mock
 
 from Requests.BasicRequest import BasicRequest
-from RequestsForwarder.BasicForwarder import BasicForwarder
+from Forwarders.BasicForwarder import BasicForwarder
 from Responses.BasicResponseGenerator import BasicResponseGenerator
 
 forwarder = BasicForwarder

@@ -1,4 +1,4 @@
-from RequestsForwarder.ForwarderInterface import Forwarder
+from Forwarders.ForwarderInterface import Forwarder
 
 
 class BasicForwarder(Forwarder):

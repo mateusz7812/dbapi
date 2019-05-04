@@ -1,7 +1,7 @@
 import copy
 
 from Requests.BasicRequest import BasicRequest
-from TaskProcessor.ProcessorInterface import Processor
+from Processors.ProcessorInterface import Processor
 
 
 class ListProcessor(Processor):

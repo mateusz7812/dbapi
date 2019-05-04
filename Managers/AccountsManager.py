@@ -1,4 +1,4 @@
-from WriteManager.ManagerInterface import Manager
+from Managers.ManagerInterface import Manager
 
 
 class AccountsManager(Manager):

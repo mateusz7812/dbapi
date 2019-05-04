@@ -5,7 +5,7 @@ from Requests.BasicRequest import BasicRequest
 from Requests.RequestGeneratorBasic import BasicRequestGenerator
 from Requests.RequestInterface import Request
 from Responses.BasicResponse import BasicResponse
-from TaskProcessor.AccountProcessor import AccountProcessor
+from Processors.AccountProcessor import AccountProcessor
 
 processor = AccountProcessor
 requestsGenerator = BasicRequestGenerator

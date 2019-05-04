@@ -4,17 +4,17 @@ from unittest import TestCase
 
 import requests
 
-from DataWriter.TextWriter import TextWriter
+from Writers.TextWriter import TextWriter
 from Main import Main
-from RequestTaker.TwistedTaker import TwistedTaker
+from Takers.TwistedTaker import TwistedTaker
 from Requests.RequestGeneratorBasic import BasicRequestGenerator
-from RequestsForwarder.BasicForwarder import BasicForwarder
+from Forwarders.BasicForwarder import BasicForwarder
 from Responses.BasicResponseGenerator import BasicResponseGenerator
-from TaskProcessor.AccountProcessor import AccountProcessor
-from TaskProcessor.ListProcessor import ListProcessor
-from WriteManager.AccountsManager import AccountsManager
-from WriteManager.ListsManager import ListsManager
-from WriteManager.ManagerInterface import Manager
+from Processors.AccountProcessor import AccountProcessor
+from Processors.ListProcessor import ListProcessor
+from Managers.AccountsManager import AccountsManager
+from Managers.ListsManager import ListsManager
+from Managers.ManagerInterface import Manager
 
 
 def get_response(data):

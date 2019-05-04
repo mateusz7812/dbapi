@@ -4,7 +4,7 @@ from twisted.web import resource
 from twisted.internet import reactor
 from twisted.web import server
 
-from RequestTaker.TakerInterface import Taker
+from Takers.TakerInterface import Taker
 
 
 class TwistedTaker(Taker, resource.Resource):

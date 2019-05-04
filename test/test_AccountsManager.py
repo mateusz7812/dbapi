@@ -1,7 +1,7 @@
 from unittest import TestCase
 from unittest.mock import Mock
 
-from WriteManager.AccountsManager import AccountsManager
+from Managers.AccountsManager import AccountsManager
 
 manager = AccountsManager
 

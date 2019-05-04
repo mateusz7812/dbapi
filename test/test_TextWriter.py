@@ -3,7 +3,7 @@ import json
 from unittest import TestCase
 from unittest.mock import patch, Mock, MagicMock, mock_open
 
-from DataWriter.TextWriter import TextWriter
+from Writers.TextWriter import TextWriter
 
 writer = TextWriter
 

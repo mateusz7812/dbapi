@@ -6,7 +6,7 @@ from unittest.mock import Mock
 from Requests.BasicRequest import BasicRequest
 from Requests.RequestGeneratorBasic import BasicRequestGenerator
 from Responses.BasicResponse import BasicResponse
-from TaskProcessor.ListProcessor import ListProcessor
+from Processors.ListProcessor import ListProcessor
 
 processor = ListProcessor
 requestsGenerator = BasicRequestGenerator

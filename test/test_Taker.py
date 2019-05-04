@@ -5,8 +5,8 @@ from unittest import TestCase
 import requests
 
 from Main import Main
-from RequestsForwarder.ForwarderInterface import Forwarder
-from RequestTaker.TwistedTaker import TwistedTaker
+from Forwarders.ForwarderInterface import Forwarder
+from Takers.TwistedTaker import TwistedTaker
 from Requests.RequestGeneratorInterface import RequestGenerator
 from Responses.ResponseGeneratorInterface import ResponseGenerator
 

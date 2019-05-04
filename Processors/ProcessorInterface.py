@@ -1,5 +1,5 @@
 from Requests.RequestInterface import Request
-from WriteManager.ManagerInterface import Manager
+from Managers.ManagerInterface import Manager
 
 
 class Processor:
@@ -10,6 +10,8 @@ class Processor:
         self.managers = []
 
     def add_manager(self, manager):
+        #if not issubclass(manager.__class__, Manager):
+        #    raise Exception(manager + " is not subclass of Manager")
         self.managers.append(manager)
 
     def process(self, response):

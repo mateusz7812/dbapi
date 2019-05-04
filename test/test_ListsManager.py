@@ -1,7 +1,7 @@
 from unittest import TestCase
 from unittest.mock import Mock
 
-from WriteManager.ListsManager import ListsManager
+from Managers.ListsManager import ListsManager
 
 manager = ListsManager
 
