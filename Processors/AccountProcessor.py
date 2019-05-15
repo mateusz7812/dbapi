@@ -35,7 +35,7 @@ class AccountProcessor(Processor):
             if "id" not in data.keys():
                 rows = self.managers[0].manage("get", {})
                 if len(rows):
-                    row = rows[0]
+                    row = rows[-1]
                     last_id = row["id"]
                 else:
                     last_id = 0

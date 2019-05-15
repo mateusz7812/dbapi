@@ -14,6 +14,7 @@ class TestListsManager(TestCase):
         self.writer.insert.return_value = True
         self.writer.select.return_value = [{"id": 10, "name": "dadasd"}]
         self.writer.delete.return_value = True
+        self.writer.prepare.return_value = True
         self.writer.table = "lists"
 
         self.manager.add_writer(self.writer)
@@ -38,4 +39,9 @@ class TestListsManager(TestCase):
 
     def test_bad_action(self):
         self.assertRaises(Exception, lambda: self.manager.manage('delete', {"id": 10}))
+
+    def test_add_writer(self):
+        # writer adding is in setUp
+
+        self.writer.prepare.assert_called()
 

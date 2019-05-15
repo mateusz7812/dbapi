@@ -11,13 +11,19 @@ def match(values, line):
 
 
 class TextWriter(Writer):
+    def prepare(self):
+        try:
+            return open("data/"+self.table, "x")
+        except FileExistsError:
+            return True
+
     def insert(self, values: {}):
-        with open(self.table, "a") as file:
+        with open("data/"+self.table, "a") as file:
             file.write(json.dumps(values) + "\n")
         return True
 
     def select(self, values: {}):
-        with open(self.table, "r") as file:
+        with open("data/"+self.table, "r") as file:
             all_lines = [json.loads(line[:-1]) for line in file.readlines()]
         return list(filter(lambda x: match(values, x), all_lines))
 
@@ -25,7 +31,7 @@ class TextWriter(Writer):
         cleared_data = []
         deleted_data = []
 
-        with open(self.table, "r") as file:
+        with open("data/"+self.table, "r") as file:
             all_lines = [json.loads(line[:-1]) for line in file.readlines()]
 
         for line in all_lines:
@@ -34,7 +40,7 @@ class TextWriter(Writer):
             else:
                 cleared_data.append(line)
 
-        with open(self.table, "w") as file:
+        with open("data/"+self.table, "w") as file:
             for data in cleared_data:
                 file.write(json.dumps(data) + "\n")
         return deleted_data
