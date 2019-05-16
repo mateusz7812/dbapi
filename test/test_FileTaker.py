@@ -25,7 +25,7 @@ class TestTaker(TestCase):
     def setUp(self):
         self.program = Main([taker])
         self.program.start()
-        time.sleep(0.5)
+        time.sleep(0.1)
 
     def tearDown(self):
         self.program.stop()
@@ -40,23 +40,18 @@ class TestTaker(TestCase):
                 "password": "test"
             }
         }
-        data_dumped = json.dumps(data)
-        data_to_save = "1;"+data_dumped+"\n"
 
-        with open("data/requests", "w") as f:
-            f.write(data_to_save)
+        data_dumped = json.dumps(data)
+        all_requests = taker.requests_writer.select({})
+        if len(all_requests):
+            id = int(max([x["id"] for x in all_requests])) + 1
+        else:
+            id = 1
+        taker.requests_writer.insert({"id": id, "request": data_dumped})
 
         time.sleep(2)
 
-        with open("data/responses") as f:
-            read_data = [x[:-1] for x in f.readlines()]
-
-        response_dumped = json.dumps("lack of data")
-        for x in read_data:
-            separated = x.split(";")
-            if separated[0] == "1":
-                response_dumped = separated[1]
-                break
+        response_dumped = taker.responses_writer.select({"id": id})[0]["response"]
 
         response_data = json.loads(response_dumped)
         self.assertEqual(data, response_data)

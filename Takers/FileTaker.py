@@ -2,31 +2,31 @@ import json
 from multiprocessing import Process
 
 from Takers.TakerInterface import Taker
+from Writers.TextWriter import TextWriter
 
 
 class FileTaker(Taker):
     read_process = None
+    responses_writer = TextWriter("responses")
+    requests_writer = TextWriter("requests")
 
     def taking_responses(self):
-        with open("data/requests") as f:
-            last_line_number = len(f.readlines())
+        old_requests = self.requests_writer.select({})
         while 1:
-            with open("data/requests") as f:
-                try:
-                    new_line = f.read(last_line_number + 1)
-                    if new_line == "":
-                        continue
-                    splitted = new_line.split(";")
-                    request_id = int(splitted[0])
-                    data = json.loads(splitted[1])
-                    response = self.take(data)
-                    with open("data/response", "a") as a:
-                        a.write(str(request_id) + ";" + json.dumps(response) + "\n")
-                    last_line_number += 1
-                except EOFError:
-                    pass
+            all_requests = self.requests_writer.select({})
+            new_requests = list(filter(lambda x: x not in old_requests, all_requests))
+            for request in new_requests:
+                request_id = request["id"]
+                data = json.loads(request["request"])
+                response = self.take(data)
+                self.responses_writer.insert({"id": request_id, "response": json.dumps(response)})
+                old_requests.append(request)
 
     def start(self):
+        if not self.responses_writer.prepare():
+            raise Exception("responses file error")
+        if not self.requests_writer.prepare():
+            raise Exception("requests file error")
         self.read_process = Process(target=self.taking_responses)
         self.read_process.start()
 

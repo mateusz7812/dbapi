@@ -13,9 +13,12 @@ def match(values, line):
 class TextWriter(Writer):
     def prepare(self):
         try:
-            return open("data/"+self.table, "x")
+            with open("data/"+self.table, "x") as _:
+                return True
         except FileExistsError:
             return True
+        except Exception:
+            return False
 
     def insert(self, values: {}):
         with open("data/"+self.table, "a") as file:
