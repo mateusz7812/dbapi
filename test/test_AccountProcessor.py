@@ -25,7 +25,7 @@ class TestAccountProcessor(TestCase):
                                                    {"type": "account", "login": "test", "password": "test"},
                                                    "add"))
 
-    def test_Account(self):
+    def test_settings(self):
         self.assertEqual("account", self.processor.name)
         self.assertEqual(1, len(self.processor.managers))
         self.assertEqual(requestsGenerator, type(self.processor.request_generator))

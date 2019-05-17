@@ -22,7 +22,7 @@ class TestListProcessor(TestCase):
         self.processor.add_manager(self.manager)
 
         self.new_response = BasicResponse("new",
-                                          BasicRequest({"login": "test", "password": "test"},
+                                          BasicRequest({"type": "user", "login": "test", "password": "test"},
                                                        {"type": 'list', "name": "name", "content": json.dumps(
                                                            ["buy milk", "drink milk", "repeat"])},
                                                        "add"))
@@ -43,6 +43,16 @@ class TestListProcessor(TestCase):
         self.assertEqual("test", required_requests[0].object["password"])
 
     def test_add(self):
+        taken_response = self.processor.process(self.new_response)
+
+        self.assertEqual("handled", taken_response.status)
+        self.manager.manage.assert_called_with('add', {"id": 1, "user_id": 1, "name": "name",
+                                                       "content": json.dumps(["buy milk", "drink milk", "repeat"])})
+
+    def test_add_key_instead_of_password(self):
+        self.new_response.request.account = {"type": "session", "user_id": 1, "key:": "1233532543543"}
+        self.new_response.request.required["account"] = {"objects": [{"id": 1, "login": "test", "password": "test"}]}
+
         taken_response = self.processor.process(self.new_response)
 
         self.assertEqual("handled", taken_response.status)

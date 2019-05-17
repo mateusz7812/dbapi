@@ -246,3 +246,12 @@ class FunctionalTests(TestCase):
              "action": 'del'})
         self.assertEqual("handled", response["status"])
 
+    def test_add_list_with_bad_user(self):
+        # list add
+        response = get_response(
+            {"account": {"login": 'login', "password": 'password'},
+             "object": {"type": 'list', "name": "name",
+                        "content": json.dumps(["buy milk", "drink milk", "throw away box"])},
+             "action": 'add'})
+        self.assertEqual("failed", response["status"])
+
