@@ -2,8 +2,18 @@ from Forwarders.ForwarderInterface import Forwarder
 
 
 class BasicForwarder(Forwarder):
+    def __init__(self, response_generator, guard):
+        self.guard = guard()
+        super().__init__(response_generator)
+
     def forward(self, request):
         response = self.response_generator.generate(request)
+
+        if not self.guard.resolve(response):
+            response.result["status"] = "failed"
+            response.result["error"] = "not authorized"
+            return response.result
+
         processor = self.find_processor(response)
 
         required_requests = processor.get_required_requests(response)

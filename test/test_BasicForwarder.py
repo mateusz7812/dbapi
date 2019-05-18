@@ -2,18 +2,20 @@ import copy
 from unittest import TestCase
 from unittest.mock import patch, Mock
 
+from Guards.GuardInterface import Guard
 from Requests.BasicRequest import BasicRequest
 from Forwarders.BasicForwarder import BasicForwarder
 from Responses.BasicResponseGenerator import BasicResponseGenerator
 
 forwarder = BasicForwarder
 responseGenerator = BasicResponseGenerator
+guard = Mock()
 
 
 class TestForwarder(TestCase):
     def setUp(self):
         self.responseGenerator = responseGenerator()
-        self.forwarder = forwarder(responseGenerator)
+        self.forwarder = forwarder(responseGenerator, guard)
 
         data_object = {"type": "account",
                        "login": "test",
@@ -39,6 +41,8 @@ class TestForwarder(TestCase):
         self.assertEqual(12, result["user_id"])
 
     def test_forward_with_required(self):
+        self.forwarder.guard.resolve.return_value = True
+
         def process(response):
             response.status = "handled"
             response.result["user_id"] = response.request.required["account"]["user_id"]
@@ -60,3 +64,11 @@ class TestForwarder(TestCase):
         self.assertEqual("handled", result["status"])
         self.assertEqual(12, result["user_id"])
         self.assertEqual("abcdefgh", result["user_key"])
+
+    def test_forward_not_authorized(self):
+        self.forwarder.guard.resolve.return_value = False
+
+        result = self.forwarder.forward(self.request)
+
+        self.assertEqual("failed", result["status"])
+        self.assertEqual("not authorized", result["error"])
