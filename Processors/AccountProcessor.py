@@ -13,10 +13,11 @@ class AccountProcessor(Processor):
         data = copy.deepcopy(response.request.object)
         data.pop("type")
 
-        if not ("login" in data.keys() and "password" in data.keys()):
-            response.status = "failed"
-            response.result["error"] = "no login/password"
-            return response
+        if response.request.account["type"] != "internal":
+            if not ("login" in data.keys() and "password" in data.keys()):
+                response.status = "failed"
+                response.result["error"] = "no login/password"
+                return response
 
         if response.request.action == "add":
             same_login_users = self.managers[0].manage("get", {"login": data["login"]})

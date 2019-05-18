@@ -9,8 +9,7 @@ class BasicForwarder(Forwarder):
         required_requests = processor.get_required_requests(response)
         for required_request in required_requests:
             result_required = self.forward(required_request)
-            for key in result_required.keys():
-                response.request.required[required_request.object["type"]] = result_required
+            response.request.required[required_request.object["type"]] = result_required
 
         response = processor.process(response)
         response.result["status"] = response.status

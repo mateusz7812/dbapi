@@ -5,6 +5,8 @@ from unittest import TestCase
 
 import requests
 
+from Managers.SessionsManager import SessionsManager
+from Processors.SessionProcessor import SessionProcessor
 from Writers.TextWriter import TextWriter
 from Main import Main
 from Takers.TwistedTaker import TwistedTaker
@@ -42,6 +44,13 @@ lists_manager.add_writer(lists_writer)
 list_processor.add_manager(lists_manager)
 forwarder.add_processor(list_processor)
 
+session_processor = SessionProcessor(requestGenerator)
+sessions_manager = SessionsManager()
+sessions_writer = TextWriter("sessions")
+sessions_manager.add_writer(sessions_writer)
+session_processor.add_manager(sessions_manager)
+forwarder.add_processor(session_processor)
+
 taker = TwistedTaker(requestGenerator, forwarder)
 
 
@@ -59,14 +68,14 @@ class FunctionalTests(TestCase):
     def test_new_list_sequence(self):
         # account add
         response = get_response(
-            {"account": {},
+            {"account": {"type": "anonymous"},
              "object": {"type": 'account', "login": 'login', "password": 'password', "nick": 'nick'},
              "action": 'add'})
         self.assertEqual("handled", response["status"])
 
         # list add
         response = get_response(
-            {"account": {"login": 'login', "password": 'password'},
+            {"account": {"type": "account", "login": 'login', "password": 'password'},
              "object": {"type": 'list', "name": "name",
                         "content": json.dumps(["buy milk", "drink milk", "throw away box"])},
              "action": 'add'})
@@ -74,7 +83,7 @@ class FunctionalTests(TestCase):
 
         # list get
         response = get_response(
-            {"account": {"login": 'login', "password": 'password'},
+            {"account": {"type": "account", "login": 'login', "password": 'password'},
              "object": {"type": 'list', "name": "name"},
              "action": 'get'})
         self.assertEqual("handled", response["status"])
@@ -84,14 +93,14 @@ class FunctionalTests(TestCase):
 
         # list del
         response = get_response(
-            {"account": {"login": 'login', "password": 'password'},
+            {"account": {"type": "account", "login": 'login', "password": 'password'},
              "object": {"type": 'list', "name": "name"},
              "action": 'del'})
         self.assertEqual("handled", response["status"])
 
         # list get
         response = get_response(
-            {"account": {"login": 'login', "password": 'password'},
+            {"account": {"type": "account", "login": 'login', "password": 'password'},
              "object": {"type": 'list', "name": "name"},
              "action": 'get'})
         self.assertEqual("handled", response["status"])
@@ -99,7 +108,79 @@ class FunctionalTests(TestCase):
 
         # account delete
         response = get_response(
-            {"account": {},
+            {"account": {"type": "anonymous"},
+             "object": {"type": 'account', "login": 'login', "password": 'password'},
+             "action": 'del'})
+        self.assertEqual("handled", response["status"])
+
+    def test_new_list_sequence_using_session(self):
+        # account add
+        response = get_response(
+            {"account": {"type": "anonymous"},
+             "object": {"type": 'account', "login": 'login', "password": 'password', "nick": 'nick'},
+             "action": 'add'})
+        self.assertEqual("handled", response["status"])
+
+        # session add
+        response = get_response(
+            {"account": {"type": 'account', "login": 'login', "password": 'password'},
+             "object": {"type": 'session'},
+             "action": 'add'})
+        self.assertEqual("handled", response["status"])
+        user_id = response["objects"][0]["user_id"]
+        user_key = response["objects"][0]["key"]
+
+        # list add
+        response = get_response(
+            {"account": {"type": "session", "user_id": user_id, "key": user_key},
+             "object": {"type": 'list', "name": "name",
+                        "content": json.dumps(["buy milk", "drink milk", "throw away box"])},
+             "action": 'add'})
+        self.assertEqual("handled", response["status"])
+
+        # list get
+        response = get_response(
+            {"account": {"type": "session", "user_id": user_id, "key": user_key},
+             "object": {"type": 'list', "name": "name"},
+             "action": 'get'})
+        self.assertEqual("handled", response["status"])
+        self.assertEqual(1, len(response["objects"]))
+        list_object = response["objects"][0]
+        self.assertEqual(["buy milk", "drink milk", "throw away box"], json.loads(list_object["content"]))
+
+        # list del
+        response = get_response(
+            {"account": {"type": "session", "user_id": user_id, "key": user_key},
+             "object": {"type": 'list', "name": "name"},
+             "action": 'del'})
+        self.assertEqual("handled", response["status"])
+
+        # list get
+        response = get_response(
+            {"account": {"type": "session", "user_id": user_id, "key": user_key},
+             "object": {"type": 'list', "name": "name"},
+             "action": 'get'})
+        self.assertEqual("handled", response["status"])
+        self.assertEqual(0, len(response["objects"]))
+
+        # session del
+        response = get_response(
+            {"account": {"type": "session", "user_id": user_id, "key": user_key},
+             "object": {"type": 'session'},
+             "action": 'del'})
+        self.assertEqual("handled", response["status"])
+
+        # list get
+        response = get_response(
+            {"account": {"type": "session", "user_id": user_id, "key": user_key},
+             "object": {"type": 'list', "name": "name"},
+             "action": 'get'})
+        self.assertEqual("failed", response["status"])
+        self.assertEqual("user not found", response["error"])
+
+        # account delete
+        response = get_response(
+            {"account": {"type": 'anonymous'},
              "object": {"type": 'account', "login": 'login', "password": 'password'},
              "action": 'del'})
         self.assertEqual("handled", response["status"])
@@ -107,14 +188,14 @@ class FunctionalTests(TestCase):
     def test_new_user_sequence(self):
         # account add
         response = get_response(
-            {"account": {},
+            {"account": {"type": "anonymous"},
              "object": {"type": 'account', "login": 'login', "password": 'password', "nick": 'nick'},
              "action": 'add'})
         self.assertEqual("handled", response["status"])
 
         # account get
         response = get_response(
-            {"account": {},
+            {"account": {"type": "anonymous"},
              "object": {"type": 'account', "login": 'login', "password": 'password'},
              "action": 'get'})
         account = response["objects"][0]
@@ -126,7 +207,7 @@ class FunctionalTests(TestCase):
 
         # account delete
         response = get_response(
-            {"account": {},
+            {"account": {"type": "anonymous"},
              "object": {"type": 'account', "login": 'login', "password": 'password'},
              "action": 'del'})
         self.assertEqual("handled", response["status"])
@@ -140,14 +221,14 @@ class FunctionalTests(TestCase):
     def test_two_same_users_sequence(self):
         # account add
         response = get_response(
-            {"account": {},
+            {"account": {"type": "anonymous"},
              "object": {"type": 'account', "login": 'login', "password": 'password', "nick": 'nick'},
              "action": 'add'})
         self.assertEqual("handled", response["status"])
 
         # same login account add
         response = get_response(
-            {"account": {},
+            {"account": {"type": "anonymous"},
              "object": {"type": 'account', "login": 'login', "password": 'other', "nick": 'other'},
              "action": 'add'})
         self.assertEqual("failed", response["status"])
@@ -155,7 +236,7 @@ class FunctionalTests(TestCase):
 
         # same nick account add
         response = get_response(
-            {"account": {},
+            {"account": {"type": "anonymous"},
              "object": {"type": 'account', "login": 'other', "password": 'other', "nick": 'nick'},
              "action": 'add'})
         self.assertEqual("failed", response["status"])
@@ -163,7 +244,7 @@ class FunctionalTests(TestCase):
 
         # account get
         response = get_response(
-            {"account": {},
+            {"account": {"type": "anonymous"},
              "object": {"type": 'account', "login": 'login', "password": 'password'},
              "action": 'get'})
         account = response["objects"][0]
@@ -175,7 +256,7 @@ class FunctionalTests(TestCase):
 
         # account delete
         response = get_response(
-            {"account": {},
+            {"account": {"type": "anonymous"},
              "object": {"type": 'account', "login": 'login', "password": 'password'},
              "action": 'del'})
         account = response["objects"][0]
@@ -188,40 +269,40 @@ class FunctionalTests(TestCase):
     def test_more_new_users_sequence(self):
         # accounts add
         response = get_response(
-            {"account": {},
+            {"account": {"type": "anonymous"},
              "object": {"type": 'account', "login": 'login1', "password": 'password', "nick": 'nick1'},
              "action": 'add'})
         self.assertEqual("handled", response["status"])
 
         response = get_response(
-            {"account": {},
+            {"account": {"type": "anonymous"},
              "object": {"type": 'account', "login": 'login2', "password": 'password', "nick": 'nick2'},
              "action": 'add'})
         self.assertEqual("handled", response["status"])
 
         response = get_response(
-            {"account": {},
+            {"account": {"type": "anonymous"},
              "object": {"type": 'account', "login": 'login3', "password": 'password', "nick": 'nick3'},
              "action": 'add'})
         self.assertEqual("handled", response["status"])
 
         # accounts get
         response = get_response(
-            {"account": {},
+            {"account": {"type": "anonymous"},
              "object": {"type": 'account', "login": 'login1', "password": 'password'},
              "action": 'get'})
         self.assertEqual("handled", response["status"])
         self.assertEqual("nick1", response["objects"][0]["nick"])
 
         response = get_response(
-            {"account": {},
+            {"account": {"type": "anonymous"},
              "object": {"type": 'account', "login": 'login2', "password": 'password'},
              "action": 'get'})
         self.assertEqual("handled", response["status"])
         self.assertEqual("nick2", response["objects"][0]["nick"])
         response = get_response(
 
-            {"account": {},
+            {"account": {"type": "anonymous"},
              "object": {"type": 'account', "login": 'login3', "password": 'password'},
              "action": 'get'})
         self.assertEqual("handled", response["status"])
@@ -229,19 +310,19 @@ class FunctionalTests(TestCase):
 
         # account delete
         response = get_response(
-            {"account": {},
+            {"account": {"type": "anonymous"},
              "object": {"type": 'account', "login": 'login1', "password": 'password'},
              "action": 'del'})
         self.assertEqual("handled", response["status"])
 
         response = get_response(
-            {"account": {},
+            {"account": {"type": "anonymous"},
              "object": {"type": 'account', "login": 'login2', "password": 'password'},
              "action": 'del'})
         self.assertEqual("handled", response["status"])
 
         response = get_response(
-            {"account": {},
+            {"account": {"type": "anonymous"},
              "object": {"type": 'account', "login": 'login3', "password": 'password'},
              "action": 'del'})
         self.assertEqual("handled", response["status"])
@@ -249,7 +330,7 @@ class FunctionalTests(TestCase):
     def test_add_list_with_bad_user(self):
         # list add
         response = get_response(
-            {"account": {"login": 'login', "password": 'password'},
+            {"account": {"type": "account", "login": 'login', "password": 'password'},
              "object": {"type": 'list', "name": "name",
                         "content": json.dumps(["buy milk", "drink milk", "throw away box"])},
              "action": 'add'})

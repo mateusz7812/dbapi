@@ -12,7 +12,7 @@ requestsGenerator = BasicRequestGenerator
 
 def retval(action, val):
     if action == "add":
-        return [val]
+        return True
     return []
 
 
@@ -22,7 +22,7 @@ class TestSessionProcessor(TestCase):
 
         self.manager = Mock()
         self.manager.name = "session"
-        self.manager.manage.return_value = []
+        self.manager.manage.return_value = True
         self.processor.add_manager(self.manager)
 
         self.response = BasicResponse("new",
@@ -53,7 +53,7 @@ class TestSessionProcessor(TestCase):
 
         self.assertEqual(1, len(required_requests))
         self.assertIsInstance(required_requests[0], BasicRequest)
-        self.assertEqual(1, required_requests[0].object["user_id"])
+        self.assertEqual(1, required_requests[0].object["id"])
 
     def test_add(self):
         self.manager.manage = retval
@@ -74,7 +74,7 @@ class TestSessionProcessor(TestCase):
 
         self.assertEqual("handled", taken_response.status)
         self.manager.manage.assert_called_with('get', {"user_id": 1})
-        self.assertEqual({"id": 1, "login": "test", "password": "test"},
+        self.assertEqual([{"id": 1, "login": "test", "password": "test"}],
                          taken_response.result["objects"])
 
     def test_del(self):

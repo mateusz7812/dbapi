@@ -11,7 +11,6 @@ class SessionProcessor(Processor):
     def process(self, response):
         data = copy.deepcopy(response.request.object)
         data.pop("type")
-
         if len(response.request.required["account"]["objects"]) != 1:
             response.status = "failed"
             response.result["error"] = "user not found"
@@ -28,13 +27,14 @@ class SessionProcessor(Processor):
                 key = random.randint(1000000000000000000000000,
                                      9999999999999999999999999)
                 data["key"] = str(key)
-
-            response.result["objects"] = self.managers[0].manage(response.request.action, data)
+            if self.managers[0].manage(response.request.action, data):
+                response.result["objects"] = [data]
 
         elif response.request.action == "get":
+            response.result["objects"] = []
             keys = [row["key"] for row in self.managers[0].manage(response.request.action, data)]
             if response.request.account["key"] in keys:
-                response.result["objects"] = response.request.required["account"]["objects"][0]
+                response.result["objects"] = response.request.required["account"]["objects"]
 
         elif response.request.action == "del":
             response.result["objects"] = self.managers[0].manage(response.request.action, data)
@@ -46,7 +46,7 @@ class SessionProcessor(Processor):
         if response.request.action == "add":
             return [BasicRequest({"type": "internal"}, {"type": "account", "login": response.request.account["login"],
                                                         "password": response.request.account["password"]}, "get")]
-        elif response.request.action == "get":
+        elif response.request.action == "get" or response.request.action == "del":
             return [
-                BasicRequest({"type": "internal"}, {"type": "account", "user_id": response.request.account["user_id"]},
+                BasicRequest({"type": "internal"}, {"type": "account", "id": response.request.account["user_id"]},
                              "get")]

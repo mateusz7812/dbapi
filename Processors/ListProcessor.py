@@ -8,19 +8,30 @@ class ListProcessor(Processor):
     name = "list"
 
     def get_required_requests(self, response):
-        return [BasicRequest({"type": "internal"}, {"type": "account", "login": response.request.account["login"],
-                                                    "password": response.request.account["password"]}, "get")]
+        if response.request.account["type"] == "account":
+            return [BasicRequest({"type": "internal"}, {"type": "account", "login": response.request.account["login"],
+                                                        "password": response.request.account["password"]}, "get")]
+        elif response.request.account["type"] == "session":
+            return [BasicRequest({"type": "session", "user_id": response.request.account["user_id"],
+                                  "key": response.request.account["key"]}, {"type": "session"},
+                                 "get")]
 
     def process(self, response):
         data = copy.deepcopy(response.request.object)
         data.pop("type")
 
-        if len(response.request.required["account"]["objects"]) != 1:
+        authorization = ""
+        if "account" in response.request.required.keys():
+            authorization = "account"
+
+        elif "session" in response.request.required.keys():
+            authorization = "session"
+        if len(response.request.required[authorization]["objects"]) != 1:
             response.status = "failed"
             response.result["error"] = "user not found"
             return response
 
-        data["user_id"] = response.request.required["account"]["objects"][0]["id"]
+        data["user_id"] = response.request.required[authorization]["objects"][0]["id"]
 
         if response.request.action == "add":
             if "name" not in data.keys():
