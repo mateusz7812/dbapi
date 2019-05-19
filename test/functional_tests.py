@@ -5,6 +5,7 @@ from unittest import TestCase
 
 import requests
 
+from Guards.BasicGuard import BasicGuard
 from Managers.SessionsManager import SessionsManager
 from Processors.SessionProcessor import SessionProcessor
 from Writers.TextWriter import TextWriter
@@ -28,7 +29,9 @@ def get_response(data):
 
 requestGenerator = BasicRequestGenerator
 responseGenerator = BasicResponseGenerator
-forwarder = BasicForwarder(responseGenerator)
+guard = BasicGuard
+
+forwarder = BasicForwarder(responseGenerator, guard)
 
 account_processor = AccountProcessor(requestGenerator)
 account_manager = AccountsManager()

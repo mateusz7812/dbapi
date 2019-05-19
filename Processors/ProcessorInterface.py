@@ -4,6 +4,7 @@ from Managers.ManagerInterface import Manager
 
 class Processor:
     name: str
+    authorization_rules = {}
 
     def __init__(self, request_generator):
         self.request_generator = request_generator()

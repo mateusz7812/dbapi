@@ -27,8 +27,7 @@ class BasicForwarder(Forwarder):
 
     def add_processor(self, processor):
         super().add_processor(processor)
-        if processor.name in self.guard.authorization_methods:
-            self.guard.processors[processor.name] = processor
+        self.guard.processors[processor.name] = processor
 
     def find_processor(self, response):
         for processor in self.processors:

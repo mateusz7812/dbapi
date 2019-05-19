@@ -32,7 +32,7 @@ class TestTaker(TestCase):
 
     def test_taking(self):
         data = {
-            "account": None,
+            "account": {"type": "anonymous"},
             "object": "user",
             "action": "add",
             "data": {

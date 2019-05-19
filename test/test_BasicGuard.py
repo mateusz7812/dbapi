@@ -16,7 +16,7 @@ class TestBasicGuard(TestCase):
         self.response = BasicResponse("new", BasicRequest({}, {}, ""))
 
     def test_settings(self):
-        self.assertEqual(self.guard.authorization_methods, ["session", "account", "admin"])
+        self.assertEqual(self.guard.authorization_methods, ["anonymous", "session", "account", "admin"])
         self.assertTrue(issubclass(guard, Guard))
 
     def test_internal_security(self):
@@ -112,3 +112,17 @@ class TestBasicGuard(TestCase):
         self.assertEqual(admin_processor.process.call_args_list,
                          [])
         self.assertFalse(result)
+
+    def test_add_user_authorization(self):
+        self.response.request.account = {"type": "anonymous"}
+        self.response.request.object = {"type": "account", "login": "login", "password": "password"}
+        self.response.request.action = "add"
+
+        account_processor = Mock()
+        account_processor.authorization_rules = {
+            "add": {"anonymous": [{"login", "password"}], "account": [], "session": [], "admin": [{}]}}
+        self.guard.processors["account"] = account_processor
+
+        result = self.guard.resolve(self.response)
+
+        self.assertTrue(result)
