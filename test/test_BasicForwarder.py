@@ -35,13 +35,16 @@ class TestForwarder(TestCase):
         self.account_processor_mock.process = process
 
     def test_forward(self):
+        self.forwarder.guard.authorization_methods = []
         self.forwarder.add_processor(self.account_processor_mock)
+
         result = self.forwarder.forward(self.request)
 
         self.assertEqual(12, result["user_id"])
 
     def test_forward_with_required(self):
         self.forwarder.guard.resolve.return_value = True
+        self.forwarder.guard.authorization_methods = []
 
         def process(response):
             response.status = "handled"
@@ -72,3 +75,13 @@ class TestForwarder(TestCase):
 
         self.assertEqual("failed", result["status"])
         self.assertEqual("not authorized", result["error"])
+
+    def test_add_processor_to_guard(self):
+        self.forwarder.guard.authorization_methods = ["session"]
+        self.forwarder.guard.processors = {}
+        session_processor_mock = Mock()
+        session_processor_mock.name = "session"
+
+        self.forwarder.add_processor(session_processor_mock)
+
+        self.assertEqual(session_processor_mock, self.forwarder.guard.processors["session"])
