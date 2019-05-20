@@ -2,7 +2,6 @@ import copy
 from unittest import TestCase
 from unittest.mock import patch, Mock
 
-from Guards.GuardInterface import Guard
 from Requests.BasicRequest import BasicRequest
 from Forwarders.BasicForwarder import BasicForwarder
 from Responses.BasicResponseGenerator import BasicResponseGenerator
@@ -84,4 +83,4 @@ class TestForwarder(TestCase):
 
         self.forwarder.add_processor(session_processor_mock)
 
-        self.assertEqual(session_processor_mock, self.forwarder.guard.processors["session"])
+        self.assertEqual(session_processor_mock, self.forwarder.guard.add_processor.call_args_list[0][0][0])

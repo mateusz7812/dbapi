@@ -37,7 +37,8 @@ class TestBasicGuard(TestCase):
         self.guard.processors["test"] = test_processor
 
         account_processor = Mock()
-        account_processor.process.return_value = [{"id": 1, "login": "login", "password": "password"}]
+        account_processor.process.return_value = Mock()
+        account_processor.process.return_value.result = {"objects": [{"id": 1, "login": "login", "password": "password"}]}
         self.guard.processors["account"] = account_processor
 
         result = self.guard.resolve(self.response)
@@ -49,7 +50,8 @@ class TestBasicGuard(TestCase):
     def test_account_authorization_bad_pass(self):
         self.response.request.account = {"type": "account", "login": "login", "password": "wrong"}
         processor = Mock()
-        processor.process.return_value = [{"id": 1, "login": "login", "password": "password"}]
+        processor.process.return_value = Mock()
+        processor.process.return_value.result = {"objects": [{"id": 1, "login": "login", "password": "password"}]}
         self.guard.processors["account"] = processor
 
         result = self.guard.resolve(self.response)
@@ -69,7 +71,8 @@ class TestBasicGuard(TestCase):
         self.guard.processors["test"] = test_processor
 
         session_processor = Mock()
-        session_processor.process.return_value = [{"user_id": 1, "key": "123345245245423543"}, {"user_id": 1, "key": "1233"}]
+        session_processor.process.return_value = Mock()
+        session_processor.process.return_value.result = {"objects": [{"user_id": 1, "key": "123345245245423543"}, {"user_id": 1, "key": "1233"}]}
         self.guard.processors["session"] = session_processor
 
         result = self.guard.resolve(self.response)
@@ -80,13 +83,14 @@ class TestBasicGuard(TestCase):
 
     def test_session_authorization_bad_pass(self):
         self.response.request.account = {"type": "session", "user_id": 1, "key": "wrong"}
-        processor = Mock()
-        processor.process.return_value = [{"user_id": 1, "key": "123345245245423543"}, {"user_id": 1, "key": "1233"}]
-        self.guard.processors["session"] = processor
+        session_processor = Mock()
+        session_processor.process.return_value = Mock()
+        session_processor.process.return_value.result = {"objects": [{"user_id": 1, "key": "123345245245423543"}, {"user_id": 1, "key": "1233"}]}
+        self.guard.processors["session"] = session_processor
 
         result = self.guard.resolve(self.response)
 
-        self.assertEqual(processor.process.call_args_list[0][0][0].request.object,
+        self.assertEqual(session_processor.process.call_args_list[0][0][0].request.object,
                          {'type': 'session', 'user_id': 1})
         self.assertFalse(result)
 
@@ -101,11 +105,13 @@ class TestBasicGuard(TestCase):
         self.guard.processors["test"] = test_processor
 
         account_processor = Mock()
-        account_processor.process.return_value = [{"id": 1, "login": "login", "password": "password"}]
+        account_processor.process.return_value = Mock()
+        account_processor.process.return_value.result = {"objects": [{"id": 1, "login": "login", "password": "password"}]}
         self.guard.processors["account"] = account_processor
 
         admin_processor = Mock()
-        admin_processor.process.return_value = [{"id": 3, "user_id": 1}]
+        admin_processor.process.return_value = Mock()
+        admin_processor.process.return_value.result = {"objects": [{"id": 3, "user_id": 1}]}
         self.guard.processors["admin"] = admin_processor
 
         result = self.guard.resolve(self.response)
@@ -120,11 +126,13 @@ class TestBasicGuard(TestCase):
         self.response.request.account = {"type": "admin", "login": "login", "password": "wrong"}
 
         account_processor = Mock()
-        account_processor.process.return_value = [{"id": 1, "login": "login", "password": "password"}]
+        account_processor.process.return_value = Mock()
+        account_processor.process.return_value.result = {"objects": [{"id": 1, "login": "login", "password": "password"}]}
         self.guard.processors["account"] = account_processor
 
         admin_processor = Mock()
-        admin_processor.process.return_value = [{"id": 3, "user_id": 1}]
+        admin_processor.process.return_value = Mock()
+        admin_processor.process.return_value.result = {"objects": [{"id": 3, "user_id": 1}]}
         self.guard.processors["admin"] = admin_processor
 
         result = self.guard.resolve(self.response)

@@ -6,8 +6,10 @@ from Responses.BasicResponse import BasicResponse
 
 
 class BasicGuard(Guard):
-    authorization_methods = ["anonymous", "session", "account", "admin"]
-    processors = {}
+    def __init__(self):
+        super().__init__()
+        self.authorization_methods = ["anonymous", "session", "account", "admin"]
+        self.processors = {}
 
     def resolve(self, response):
         if self.verify_account(response.request.account):
@@ -45,7 +47,7 @@ class BasicGuard(Guard):
                         admin_response = BasicResponse("new",
                                                        BasicRequest({"type": "internal"}, {"type": "admin", "user_id":
                                                                     accounts[0]["id"]}, "get"))
-                        admins = self.processors["admin"].process(admin_response)
+                        admins = self.processors["admin"].process(admin_response).result["objects"]
                         if len(admins) == 1:
                             return True
 
