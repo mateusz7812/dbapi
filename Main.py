@@ -1,11 +1,11 @@
 from multiprocessing import Process
 
 from Forwarders.BasicForwarder import BasicForwarder
-from Forwarders.ForwarderInterface import Forwarder
-from Managers.AccountsManager import AccountsManager
-from Managers.ListsManager import ListsManager
+from Guards.BasicGuard import BasicGuard
+from Managers.DataBaseManager import DataBaseManager
 from Processors.AccountProcessor import AccountProcessor
 from Processors.ListProcessor import ListProcessor
+from Processors.SessionProcessor import SessionProcessor
 from Requests.RequestGeneratorBasic import BasicRequestGenerator
 from Responses.BasicResponseGenerator import BasicResponseGenerator
 from Takers.TakerInterface import Taker
@@ -38,21 +38,29 @@ class Main:
 if __name__ == "__main__":
     requestGenerator = BasicRequestGenerator
     responseGenerator = BasicResponseGenerator
-    forwarder = BasicForwarder(responseGenerator)
+    guard = BasicGuard()
+    forwarder = BasicForwarder(responseGenerator, guard)
 
     account_processor = AccountProcessor(requestGenerator)
-    account_manager = AccountsManager()
+    account_manager = DataBaseManager()
     accounts_writer = TextWriter("accounts")
     account_manager.add_writer(accounts_writer)
     account_processor.add_manager(account_manager)
     forwarder.add_processor(account_processor)
 
     list_processor = ListProcessor(requestGenerator)
-    lists_manager = ListsManager()
+    lists_manager = DataBaseManager()
     lists_writer = TextWriter("lists")
     lists_manager.add_writer(lists_writer)
     list_processor.add_manager(lists_manager)
     forwarder.add_processor(list_processor)
+
+    session_processor = SessionProcessor(requestGenerator)
+    sessions_manager = DataBaseManager()
+    sessions_writer = TextWriter("sessions")
+    sessions_manager.add_writer(sessions_writer)
+    session_processor.add_manager(sessions_manager)
+    forwarder.add_processor(session_processor)
 
     taker = TwistedTaker(requestGenerator, forwarder)
     program = Main([taker])

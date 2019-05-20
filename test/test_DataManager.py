@@ -1,9 +1,9 @@
 from unittest import TestCase
 from unittest.mock import Mock
 
-from Managers.ListsManager import ListsManager
+from Managers.DataBaseManager import DataBaseManager
 
-manager = ListsManager
+manager = DataBaseManager
 
 
 class TestListsManager(TestCase):
@@ -18,6 +18,11 @@ class TestListsManager(TestCase):
         self.writer.table = "lists"
 
         self.manager.add_writer(self.writer)
+
+    def test_add_writer(self):
+        # writer adding is in setUp
+
+        self.writer.prepare.assert_called()
 
     def test_insert(self):
         result = self.manager.manage("add", {"id": 10, "name": "dadasd"})
@@ -39,9 +44,4 @@ class TestListsManager(TestCase):
 
     def test_bad_action(self):
         self.assertRaises(Exception, lambda: self.manager.manage('delete', {"id": 10}))
-
-    def test_add_writer(self):
-        # writer adding is in setUp
-
-        self.writer.prepare.assert_called()
 

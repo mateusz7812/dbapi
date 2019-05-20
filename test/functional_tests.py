@@ -6,7 +6,7 @@ from unittest import TestCase
 import requests
 
 from Guards.BasicGuard import BasicGuard
-from Managers.SessionsManager import SessionsManager
+from Managers.DataBaseManager import DataBaseManager
 from Processors.SessionProcessor import SessionProcessor
 from Writers.TextWriter import TextWriter
 from Main import Main
@@ -16,8 +16,6 @@ from Forwarders.BasicForwarder import BasicForwarder
 from Responses.BasicResponseGenerator import BasicResponseGenerator
 from Processors.AccountProcessor import AccountProcessor
 from Processors.ListProcessor import ListProcessor
-from Managers.AccountsManager import AccountsManager
-from Managers.ListsManager import ListsManager
 from Managers.ManagerInterface import Manager
 
 
@@ -34,21 +32,21 @@ guard = BasicGuard
 forwarder = BasicForwarder(responseGenerator, guard)
 
 account_processor = AccountProcessor(requestGenerator)
-account_manager = AccountsManager()
+account_manager = DataBaseManager()
 accounts_writer = TextWriter("accounts")
 account_manager.add_writer(accounts_writer)
 account_processor.add_manager(account_manager)
 forwarder.add_processor(account_processor)
 
 list_processor = ListProcessor(requestGenerator)
-lists_manager = ListsManager()
+lists_manager = DataBaseManager()
 lists_writer = TextWriter("lists")
 lists_manager.add_writer(lists_writer)
 list_processor.add_manager(lists_manager)
 forwarder.add_processor(list_processor)
 
 session_processor = SessionProcessor(requestGenerator)
-sessions_manager = SessionsManager()
+sessions_manager = DataBaseManager()
 sessions_writer = TextWriter("sessions")
 sessions_manager.add_writer(sessions_writer)
 session_processor.add_manager(sessions_manager)
