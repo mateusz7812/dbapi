@@ -5,6 +5,12 @@ from Processors.ProcessorInterface import Processor
 
 class AccountProcessor(Processor):
     name = "account"
+    authorization_rules = {
+        "add": {"anonymous": [{"login", "password"}], "account": [], "session": [], "admin": [set()]},
+        "get": {"anonymous": [{"login", "password"}], "account": [{"login", "password"}],
+                "session": [{"login", "password"}], "admin": [set()]},
+        "del": {"anonymous": [{"login", "password"}], "account": [{"login", "password"}], "session": [],
+                "admin": [set()]}}
 
     def get_required_requests(self, response):
         return []
@@ -12,12 +18,6 @@ class AccountProcessor(Processor):
     def process(self, response):
         data = copy.deepcopy(response.request.object)
         data.pop("type")
-
-        if response.request.account["type"] != "internal":
-            if not ("login" in data.keys() and "password" in data.keys()):
-                response.status = "failed"
-                response.result["error"] = "no login/password"
-                return response
 
         if response.request.action == "add":
             same_login_users = self.managers[0].manage("get", {"login": data["login"]})
@@ -41,6 +41,7 @@ class AccountProcessor(Processor):
                 else:
                     last_id = 0
                 data["id"] = last_id + 1
+
         response.result["objects"] = self.managers[0].manage(response.request.action, data)
         response.status = "handled"
         return response

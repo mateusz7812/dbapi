@@ -26,8 +26,8 @@ class TestSessionProcessor(TestCase):
         self.processor.add_manager(self.manager)
 
         self.response = BasicResponse("new",
-                                      BasicRequest({"login": "test", "password": "test"},
-                                                   {"type": "session"},
+                                      BasicRequest({"type": "account", "login": "test", "password": "test"},
+                                                   {"type": "session", "user_id": 1},
                                                    "add"))
 
         self.response.request.required["account"] = {"objects": [{"id": 1, "login": "test", "password": "test"}]}
@@ -61,11 +61,8 @@ class TestSessionProcessor(TestCase):
         taken_response = self.processor.process(self.response)
 
         self.assertEqual("handled", taken_response.status)
-        self.assertEqual(str, type(taken_response.result["objects"][0]["key"]))
-        self.assertEqual(25, len(taken_response.result["objects"][0]["key"]))
-        self.assertEqual(1, taken_response.result["objects"][0]["user_id"])
 
-    def test_get_user(self):
+    def test_get(self):
         self.response.request.action = "get"
         self.response.request.account = {"type": "session", "user_id": 1, "key": "1234567890123456789012345"}
         self.manager.manage.return_value = [{"user_id": 1, "key": "1234567890123456789012345"}]
@@ -74,7 +71,7 @@ class TestSessionProcessor(TestCase):
 
         self.assertEqual("handled", taken_response.status)
         self.manager.manage.assert_called_with('get', {"user_id": 1})
-        self.assertEqual([{"id": 1, "login": "test", "password": "test"}],
+        self.assertEqual([{'key': '1234567890123456789012345', 'user_id': 1}],
                          taken_response.result["objects"])
 
     def test_del(self):

@@ -47,10 +47,7 @@ class TestListProcessor(TestCase):
 
         required_requests = self.processor.get_required_requests(self.new_response)
 
-        self.assertEqual(1, len(required_requests))
-        self.assertIsInstance(required_requests[0], BasicRequest)
-        self.assertEqual(1, required_requests[0].account["user_id"])
-        self.assertEqual("session", required_requests[0].object["type"])
+        self.assertEqual(0, len(required_requests))
 
     def test_add(self):
         taken_response = self.processor.process(self.new_response)
@@ -106,15 +103,6 @@ class TestListProcessor(TestCase):
         self.assertIn({"id": 1, "user_id": 1, "name": "name",
                        "content": json.dumps(["buy milk", "drink milk", "repeat"])},
                       taken_response.result["objects"])
-
-    def test_no_user(self):
-        self.new_response.request.required["account"]["objects"] = []
-
-        taken_response = self.processor.process(self.new_response)
-
-        self.assertEqual("failed", taken_response.status)
-        self.assertEqual("user not found", taken_response.result["error"])
-        self.manager.manage.assert_not_called()
 
     def test_no_name(self):
         new_prepared_response = copy.deepcopy(self.new_response)

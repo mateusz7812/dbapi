@@ -95,10 +95,3 @@ class TestAccountProcessor(TestCase):
         self.assertEqual("test", objects[0]["login"])
         self.assertEqual("test", objects[0]["password"])
         self.assertEqual(int, type(objects[0]["id"]))
-
-    def test_process_fail(self):
-        self.response.request.object.pop("login")
-        taken_response = self.processor.process(self.response)
-        self.assertFalse(self.manager.manage.called)
-        self.assertEqual("failed", taken_response.status)
-        self.assertEqual("no login/password", taken_response.result["error"])

@@ -7,16 +7,26 @@ from Requests.BasicRequest import BasicRequest
 
 class SessionProcessor(Processor):
     name = "session"
+    authorization_rules = {
+        "add": {"anonymous": [], "account": [{"user_id"}], "session": [{"user_id"}], "admin": [set()]},
+        "get": {"anonymous": [], "account": [{"user_id"}],
+                "session": [{"user_id"}], "admin": [set()]},
+        "del": {"anonymous": [], "account": [{"user_id"}], "session": [{"user_id"}],
+                "admin": [set()]}}
+
+    def get_required_requests(self, response):
+        if response.request.action == "add":
+            return [BasicRequest({"type": "internal"}, {"type": "account", "login": response.request.account["login"],
+                                                        "password": response.request.account["password"]}, "get")]
+        elif response.request.action == "get" or response.request.action == "del":
+            return [
+                BasicRequest({"type": "internal"}, {"type": "account", "id": response.request.object["user_id"]},
+                             "get")]
+        return []
 
     def process(self, response):
         data = copy.deepcopy(response.request.object)
         data.pop("type")
-        if len(response.request.required["account"]["objects"]) != 1:
-            response.status = "failed"
-            response.result["error"] = "user not found"
-            return response
-
-        data["user_id"] = response.request.required["account"]["objects"][0]["id"]
 
         if response.request.action == "add":
             if "key" not in data.keys():
@@ -27,26 +37,7 @@ class SessionProcessor(Processor):
                 key = random.randint(1000000000000000000000000,
                                      9999999999999999999999999)
                 data["key"] = str(key)
-            if self.managers[0].manage(response.request.action, data):
-                response.result["objects"] = [data]
 
-        elif response.request.action == "get":
-            response.result["objects"] = []
-            keys = [row["key"] for row in self.managers[0].manage(response.request.action, data)]
-            if response.request.account["key"] in keys:
-                response.result["objects"] = response.request.required["account"]["objects"]
-
-        elif response.request.action == "del":
-            response.result["objects"] = self.managers[0].manage(response.request.action, data)
-
+        response.result["objects"] = self.managers[0].manage(response.request.action, data)
         response.status = "handled"
         return response
-
-    def get_required_requests(self, response):
-        if response.request.action == "add":
-            return [BasicRequest({"type": "internal"}, {"type": "account", "login": response.request.account["login"],
-                                                        "password": response.request.account["password"]}, "get")]
-        elif response.request.action == "get" or response.request.action == "del":
-            return [
-                BasicRequest({"type": "internal"}, {"type": "account", "id": response.request.account["user_id"]},
-                             "get")]

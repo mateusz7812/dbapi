@@ -28,13 +28,21 @@ class TestBasicGuard(TestCase):
 
     def test_account_authorization(self):
         self.response.request.account = {"type": "account", "login": "login", "password": "password"}
-        processor = Mock()
-        processor.process.return_value = [{"id": 1, "login": "login", "password": "password"}]
-        self.guard.processors["account"] = processor
+        self.response.request.object = {"type": "test"}
+        self.response.request.action = "test"
+
+        test_processor = Mock()
+        test_processor.name = "test"
+        test_processor.authorization_rules = {"test": {"account": [set()]}}
+        self.guard.processors["test"] = test_processor
+
+        account_processor = Mock()
+        account_processor.process.return_value = [{"id": 1, "login": "login", "password": "password"}]
+        self.guard.processors["account"] = account_processor
 
         result = self.guard.resolve(self.response)
 
-        self.assertEqual(processor.process.call_args_list[0][0][0].request.object,
+        self.assertEqual(account_processor.process.call_args_list[0][0][0].request.object,
                          {'type': 'account', 'login': 'login'})
         self.assertTrue(result)
 
@@ -52,13 +60,21 @@ class TestBasicGuard(TestCase):
 
     def test_session_authorization(self):
         self.response.request.account = {"type": "session", "user_id": 1, "key": "123345245245423543"}
-        processor = Mock()
-        processor.process.return_value = [{"user_id": 1, "key": "123345245245423543"}, {"user_id": 1, "key": "1233"}]
-        self.guard.processors["session"] = processor
+        self.response.request.object = {"type": "test"}
+        self.response.request.action = "test"
+
+        test_processor = Mock()
+        test_processor.name = "test"
+        test_processor.authorization_rules = {"test": {"session": [set()]}}
+        self.guard.processors["test"] = test_processor
+
+        session_processor = Mock()
+        session_processor.process.return_value = [{"user_id": 1, "key": "123345245245423543"}, {"user_id": 1, "key": "1233"}]
+        self.guard.processors["session"] = session_processor
 
         result = self.guard.resolve(self.response)
 
-        self.assertEqual(processor.process.call_args_list[0][0][0].request.object,
+        self.assertEqual(session_processor.process.call_args_list[0][0][0].request.object,
                          {'type': 'session', 'user_id': 1})
         self.assertTrue(result)
 
@@ -76,6 +92,13 @@ class TestBasicGuard(TestCase):
 
     def test_admin_authorization(self):
         self.response.request.account = {"type": "admin", "login": "login", "password": "password"}
+        self.response.request.object = {"type": "test"}
+        self.response.request.action = "test"
+
+        test_processor = Mock()
+        test_processor.name = "test"
+        test_processor.authorization_rules = {"test": {"admin": [set()]}}
+        self.guard.processors["test"] = test_processor
 
         account_processor = Mock()
         account_processor.process.return_value = [{"id": 1, "login": "login", "password": "password"}]
@@ -126,3 +149,5 @@ class TestBasicGuard(TestCase):
         result = self.guard.resolve(self.response)
 
         self.assertTrue(result)
+
+

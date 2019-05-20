@@ -14,11 +14,16 @@ class BasicForwarder(Forwarder):
             response.result["error"] = "not authorized"
             return response.result
 
+        return self.get_results(request)
+
+    def get_results(self, request):
+        response = self.response_generator.generate(request)
+
         processor = self.find_processor(response)
 
         required_requests = processor.get_required_requests(response)
         for required_request in required_requests:
-            result_required = self.forward(required_request)
+            result_required = self.get_results(required_request)
             response.request.required[required_request.object["type"]] = result_required
 
         response = processor.process(response)
@@ -26,12 +31,12 @@ class BasicForwarder(Forwarder):
         return response.result
 
     def add_processor(self, processor):
-        super().add_processor(processor)
-        self.guard.processors[processor.name] = processor
+        self.processors[processor.name] = processor
+        self.guard.add_processor(processor)
 
     def find_processor(self, response):
-        for processor in self.processors:
-            if processor.name == response.request.object["type"]:
-                return processor
-        raise Exception("No processor with such name")
+        try:
+            return self.processors[response.request.object["type"]]
+        except KeyError:
+            raise Exception("No processor with such name")
 

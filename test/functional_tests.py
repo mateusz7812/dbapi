@@ -84,27 +84,38 @@ class FunctionalTests(TestCase):
              "action": 'add'})
         self.assertEqual("handled", response["status"])
 
+        # account get
+        response = get_response(
+            {"account": {"type": "account", "login": 'login', "password": 'password'},
+             "object": {"type": 'account', "login": 'login', "password": 'password'},
+             "action": 'get'})
+        self.assertEqual("handled", response["status"])
+
+        user_id = response["objects"][0]["id"]
+
         # list get
         response = get_response(
             {"account": {"type": "account", "login": 'login', "password": 'password'},
-             "object": {"type": 'list', "name": "name"},
+             "object": {"type": 'list', "name": "name", "user_id": user_id},
              "action": 'get'})
         self.assertEqual("handled", response["status"])
         self.assertEqual(1, len(response["objects"]))
         list_object = response["objects"][0]
         self.assertEqual(["buy milk", "drink milk", "throw away box"], json.loads(list_object["content"]))
 
+        list_id = list_object["id"]
+
         # list del
         response = get_response(
             {"account": {"type": "account", "login": 'login', "password": 'password'},
-             "object": {"type": 'list', "name": "name"},
+             "object": {"type": 'list', "id": list_id, "user_id": user_id, "name": "name"},
              "action": 'del'})
         self.assertEqual("handled", response["status"])
 
         # list get
         response = get_response(
             {"account": {"type": "account", "login": 'login', "password": 'password'},
-             "object": {"type": 'list', "name": "name"},
+             "object": {"type": 'list', "name": "name", "user_id": user_id},
              "action": 'get'})
         self.assertEqual("handled", response["status"])
         self.assertEqual(0, len(response["objects"]))
@@ -124,12 +135,29 @@ class FunctionalTests(TestCase):
              "action": 'add'})
         self.assertEqual("handled", response["status"])
 
+        # account get
+        response = get_response(
+            {"account": {"type": "account", "login": 'login', "password": 'password'},
+             "object": {"type": 'account', "login": 'login', "password": 'password'},
+             "action": 'get'})
+        self.assertEqual("handled", response["status"])
+
+        user_id = response["objects"][0]["id"]
+
         # session add
         response = get_response(
             {"account": {"type": 'account', "login": 'login', "password": 'password'},
-             "object": {"type": 'session'},
+             "object": {"type": 'session', "user_id": user_id},
              "action": 'add'})
         self.assertEqual("handled", response["status"])
+
+        # session get
+        response = get_response(
+            {"account": {"type": 'account', "login": 'login', "password": 'password'},
+             "object": {"type": 'session', "user_id": user_id},
+             "action": 'get'})
+        self.assertEqual("handled", response["status"])
+
         user_id = response["objects"][0]["user_id"]
         user_key = response["objects"][0]["key"]
 
@@ -144,24 +172,26 @@ class FunctionalTests(TestCase):
         # list get
         response = get_response(
             {"account": {"type": "session", "user_id": user_id, "key": user_key},
-             "object": {"type": 'list', "name": "name"},
+             "object": {"type": 'list', "name": "name", "user_id": user_id},
              "action": 'get'})
         self.assertEqual("handled", response["status"])
         self.assertEqual(1, len(response["objects"]))
         list_object = response["objects"][0]
         self.assertEqual(["buy milk", "drink milk", "throw away box"], json.loads(list_object["content"]))
 
+        list_id = list_object["id"]
+
         # list del
         response = get_response(
             {"account": {"type": "session", "user_id": user_id, "key": user_key},
-             "object": {"type": 'list', "name": "name"},
+             "object": {"type": 'list', "name": "name", "user_id": user_id, "id": list_id},
              "action": 'del'})
         self.assertEqual("handled", response["status"])
 
         # list get
         response = get_response(
             {"account": {"type": "session", "user_id": user_id, "key": user_key},
-             "object": {"type": 'list', "name": "name"},
+             "object": {"type": 'list', "name": "name", "user_id": user_id},
              "action": 'get'})
         self.assertEqual("handled", response["status"])
         self.assertEqual(0, len(response["objects"]))
@@ -169,7 +199,7 @@ class FunctionalTests(TestCase):
         # session del
         response = get_response(
             {"account": {"type": "session", "user_id": user_id, "key": user_key},
-             "object": {"type": 'session'},
+             "object": {"type": 'session', "user_id": user_id},
              "action": 'del'})
         self.assertEqual("handled", response["status"])
 
@@ -179,7 +209,7 @@ class FunctionalTests(TestCase):
              "object": {"type": 'list', "name": "name"},
              "action": 'get'})
         self.assertEqual("failed", response["status"])
-        self.assertEqual("user not found", response["error"])
+        self.assertEqual("not authorized", response["error"])
 
         # account delete
         response = get_response(

@@ -4,10 +4,10 @@ from Processors.ProcessorInterface import Processor
 class Forwarder:
     def __init__(self, response_generator):
         self.response_generator = response_generator()
-        self.processors = []
+        self.processors = {}
 
     def add_processor(self, processor):
-        self.processors.append(processor)
+        self.processors[processor.name] = processor
 
     def forward(self, response):
         raise NotImplementedError

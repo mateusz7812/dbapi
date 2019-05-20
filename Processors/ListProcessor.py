@@ -7,31 +7,27 @@ from Processors.ProcessorInterface import Processor
 class ListProcessor(Processor):
     name = "list"
 
+    authorization_rules = {
+        "add": {"anonymous": [], "account": [{"name"}], "session": [{"name"}], "admin": [set()]},
+        "get": {"anonymous": [], "account": [{"user_id"}],
+                "session": [{"user_id"}], "admin": [set()]},
+        "del": {"anonymous": [], "account": [{"user_id", "id", "name"}], "session": [{"user_id", "id", "name"}],
+                "admin": [set()]}}
+
     def get_required_requests(self, response):
         if response.request.account["type"] == "account":
             return [BasicRequest({"type": "internal"}, {"type": "account", "login": response.request.account["login"],
                                                         "password": response.request.account["password"]}, "get")]
-        elif response.request.account["type"] == "session":
-            return [BasicRequest({"type": "session", "user_id": response.request.account["user_id"],
-                                  "key": response.request.account["key"]}, {"type": "session"},
-                                 "get")]
+        return []
 
     def process(self, response):
         data = copy.deepcopy(response.request.object)
         data.pop("type")
 
-        authorization = ""
-        if "account" in response.request.required.keys():
-            authorization = "account"
-
-        elif "session" in response.request.required.keys():
-            authorization = "session"
-        if len(response.request.required[authorization]["objects"]) != 1:
-            response.status = "failed"
-            response.result["error"] = "user not found"
-            return response
-
-        data["user_id"] = response.request.required[authorization]["objects"][0]["id"]
+        if response.request.account["type"] == "account":
+            data["user_id"] = response.request.required["account"]["objects"][0]["id"]
+        elif response.request.account["type"] == "session":
+            data["user_id"] = response.request.account["user_id"]
 
         if response.request.action == "add":
             if "name" not in data.keys():
