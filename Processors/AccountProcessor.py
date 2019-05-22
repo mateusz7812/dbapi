@@ -42,6 +42,14 @@ class AccountProcessor(Processor):
                     last_id = 0
                 data["id"] = last_id + 1
 
+            if "account_type" in data.keys():
+                admins = self.managers[0].manage("get", {"account_type": "admin"})
+                if len(admins):
+                    if response.request.account["type"] != "admin":
+                        response.status = "failed"
+                        response.result["error"] = "first admin added"
+                        return response
+
         response.result["objects"] = self.managers[0].manage(response.request.action, data)
         response.status = "handled"
         return response

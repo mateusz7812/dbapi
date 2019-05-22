@@ -17,7 +17,7 @@ class BasicGuard(Guard):
         return False
 
     def verify_action_requirements(self, request):
-        processor = self.processors[request.object["type"]]
+        processor = self.find_processor(request)
         needed_fields_sets = processor.authorization_rules[request.action][request.account["type"]]
 
         for needed_fields in needed_fields_sets:
@@ -28,6 +28,12 @@ class BasicGuard(Guard):
                 return True
 
         return False
+
+    def find_processor(self, request):
+        try:
+            return self.processors[request.object["type"]]
+        except KeyError:
+            raise Exception("No processor with such name")
 
     def verify_account(self, response_account):
         if response_account["type"] == "anonymous":
@@ -44,11 +50,7 @@ class BasicGuard(Guard):
                         return True
 
                     elif response_account["type"] == "admin":
-                        admin_response = BasicResponse("new",
-                                                       BasicRequest({"type": "internal"}, {"type": "admin", "user_id":
-                                                                    accounts[0]["id"]}, "get"))
-                        admins = self.processors["admin"].process(admin_response).result["objects"]
-                        if len(admins) == 1:
+                        if accounts[0]["account_type"] == "admin":
                             return True
 
         elif response_account["type"] == "session":

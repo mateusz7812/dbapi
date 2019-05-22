@@ -367,3 +367,48 @@ class FunctionalTests(TestCase):
              "action": 'add'})
         self.assertEqual("failed", response["status"])
 
+    def test_admin_account(self):
+        # admin account add
+        response = get_response(
+            {"account": {"type": "anonymous"},
+             "object": {"type": 'account', "login": 'login', "password": 'password', "nick": 'nick',
+                        "account_type": "admin"},
+             "action": 'add'})
+        self.assertEqual("handled", response["status"])
+
+        # admin account add
+        response = get_response(
+            {"account": {"type": "anonymous"},
+             "object": {"type": 'account', "login": 'other', "password": 'password',
+                        "account_type": "admin"},
+             "action": 'add'})
+        self.assertEqual("failed", response["status"])
+
+        # admin get
+        response = get_response(
+            {"account": {"type": "anonymous"},
+             "object": {"type": 'account',  "login": 'login', "password": 'password'},
+             "action": 'get'})
+        self.assertEqual("handled", response["status"])
+        self.assertEqual(len(response["objects"]), 1)
+        self.assertEqual("admin", response["objects"][0]["account_type"])
+
+    def test_admin_authorization(self):
+        # admin account add
+        response = get_response(
+            {"account": {"type": "anonymous"},
+             "object": {"type": 'account', "login": 'login', "password": 'password', "nick": 'nick',
+                        "account_type": "admin"},
+             "action": 'add'})
+        self.assertEqual("handled", response["status"])
+
+        # second admin account add
+        response = get_response(
+            {"account": {"type": "admin", "login": 'login', "password": 'password'},
+             "object": {"type": 'account', "login": 'other', "password": 'password',
+                        "account_type": "admin"},
+             "action": 'add'})
+        self.assertEqual("handled", response["status"])
+
+
+

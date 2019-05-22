@@ -106,20 +106,13 @@ class TestBasicGuard(TestCase):
 
         account_processor = Mock()
         account_processor.process.return_value = Mock()
-        account_processor.process.return_value.result = {"objects": [{"id": 1, "login": "login", "password": "password"}]}
+        account_processor.process.return_value.result = {"objects": [{"id": 1, "login": "login", "password": "password", "account_type": "admin"}]}
         self.guard.processors["account"] = account_processor
-
-        admin_processor = Mock()
-        admin_processor.process.return_value = Mock()
-        admin_processor.process.return_value.result = {"objects": [{"id": 3, "user_id": 1}]}
-        self.guard.processors["admin"] = admin_processor
 
         result = self.guard.resolve(self.response)
 
         self.assertEqual(account_processor.process.call_args_list[0][0][0].request.object,
                          {'type': 'account', 'login': "login"})
-        self.assertEqual(admin_processor.process.call_args_list[0][0][0].request.object,
-                         {'type': 'admin', 'user_id': 1})
         self.assertTrue(result)
 
     def test_admin_authorization_bad_pass(self):
@@ -127,21 +120,14 @@ class TestBasicGuard(TestCase):
 
         account_processor = Mock()
         account_processor.process.return_value = Mock()
-        account_processor.process.return_value.result = {"objects": [{"id": 1, "login": "login", "password": "password"}]}
+        account_processor.process.return_value.result = {"objects": [{"id": 1, "login": "login", "password": "password", "account_type": "admin"}]}
         self.guard.processors["account"] = account_processor
-
-        admin_processor = Mock()
-        admin_processor.process.return_value = Mock()
-        admin_processor.process.return_value.result = {"objects": [{"id": 3, "user_id": 1}]}
-        self.guard.processors["admin"] = admin_processor
 
         result = self.guard.resolve(self.response)
 
         self.assertEqual(account_processor.process.call_args_list[0][0][0].request.object,
                          {'type': 'account', 'login': "login"})
 
-        self.assertEqual(admin_processor.process.call_args_list,
-                         [])
         self.assertFalse(result)
 
     def test_add_user_authorization(self):
