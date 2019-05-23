@@ -17,27 +17,12 @@ class TestAccountProcessor(TestCase):
 
         self.manager = Mock()
         self.manager.name = "account"
-        self.processor.add_manager(self.manager)
+        self.processor.manager = self.manager
 
         self.response = BasicResponse("", BasicRequest({}, {}, ""))
 
     def test_settings(self):
         self.assertEqual("account", self.processor.name)
-        self.assertEqual(1, len(self.processor.managers))
-        self.assertEqual(requestsGenerator, type(self.processor.request_generator))
-
-    def test_get_required_requests(self):
-        self.response.request.action = "add"
-        requireds = self.processor.get_required_requests(self.response)
-        self.assertEqual([], requireds)
-
-        self.response.request.action = "get"
-        requireds = self.processor.get_required_requests(self.response)
-        self.assertEqual([], requireds)
-
-        self.response.request.action = "del"
-        requireds = self.processor.get_required_requests(self.response)
-        self.assertEqual([], requireds)
 
     def test_process_add_first(self):
         self.response.request.object = {"type": "account", "login": "test", "password": "test"}
@@ -92,12 +77,15 @@ class TestAccountProcessor(TestCase):
 
         def ret_func(action, data):
             if action == "get":
-                return return_value
+                if data == {"nick": "nick"}:
+                    return return_value
+                else:
+                    return []
 
         self.manager.manage.side_effect = ret_func
         taken_response = self.processor.process(self.response)
         self.assertEqual("failed", taken_response.status)
-        self.assertEqual("taken login", taken_response.result["error"])
+        self.assertEqual("taken nick", taken_response.result["error"])
 
     def test_process_get(self):
         self.response.request.object = {"type": "account", "login": "test", "password": "test"}

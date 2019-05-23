@@ -12,29 +12,26 @@ class AccountProcessor(Processor):
         "del": {"anonymous": [{"login", "password"}], "account": [{"login", "password"}], "session": [],
                 "admin": [set()]}}
 
-    def get_required_requests(self, response):
-        return []
-
     def process(self, response):
         data = copy.deepcopy(response.request.object)
         data.pop("type")
 
         if response.request.action == "add":
-            same_login_users = self.managers[0].manage("get", {"login": data["login"]})
+            same_login_users = self.manager.manage("get", {"login": data["login"]})
             if same_login_users:
                 response.status = "failed"
                 response.result["error"] = "taken login"
                 return response
 
             if "nick" in data.keys():
-                same_nick_users = self.managers[0].manage("get", {"nick": data["nick"]})
+                same_nick_users = self.manager.manage("get", {"nick": data["nick"]})
                 if same_nick_users:
                     response.status = "failed"
                     response.result["error"] = "taken nick"
                     return response
 
             if "id" not in data.keys():
-                rows = self.managers[0].manage("get", {})
+                rows = self.manager.manage("get", {})
                 if len(rows):
                     row = rows[-1]
                     last_id = row["id"]
@@ -43,13 +40,13 @@ class AccountProcessor(Processor):
                 data["id"] = last_id + 1
 
             if "account_type" in data.keys():
-                admins = self.managers[0].manage("get", {"account_type": "admin"})
+                admins = self.manager.manage("get", {"account_type": "admin"})
                 if len(admins):
                     if response.request.account["type"] != "admin":
                         response.status = "failed"
                         response.result["error"] = "first admin added"
                         return response
 
-        response.result["objects"] = self.managers[0].manage(response.request.action, data)
+        response.result["objects"] = self.manager.manage(response.request.action, data)
         response.status = "handled"
         return response

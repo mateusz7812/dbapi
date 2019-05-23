@@ -22,41 +22,36 @@ class TestSessionProcessor(TestCase):
 
         self.manager = Mock()
         self.manager.name = "session"
-        self.manager.manage.return_value = True
-        self.processor.add_manager(self.manager)
+        self.processor.manager = self.manager
 
-        self.response = BasicResponse("new",
-                                      BasicRequest({"type": "account", "login": "test", "password": "test"},
-                                                   {"type": "session", "user_id": 1},
-                                                   "add"))
-
-        self.response.request.required["account"] = {"objects": [{"id": 1, "login": "test", "password": "test"}]}
+        self.response = BasicResponse("", BasicRequest({}, {"type": "session", "user_id": 1}, ""))
 
     def test_settings(self):
         self.assertEqual("session", self.processor.name)
-        self.assertEqual(1, len(self.processor.managers))
-        self.assertEqual(requestsGenerator, type(self.processor.request_generator))
-
-    def test_required_requests_for_add(self):
-        required_requests = self.processor.get_required_requests(self.response)
-
-        self.assertEqual(1, len(required_requests))
-        self.assertIsInstance(required_requests[0], BasicRequest)
-        self.assertEqual("test", required_requests[0].object["login"])
-        self.assertEqual("test", required_requests[0].object["password"])
-
-    def test_required_requests_for_get(self):
-        self.response.request.action = "get"
-        self.response.request.account = {"type": "session", "user_id": 1, "key": "21431231231"}
-
-        required_requests = self.processor.get_required_requests(self.response)
-
-        self.assertEqual(1, len(required_requests))
-        self.assertIsInstance(required_requests[0], BasicRequest)
-        self.assertEqual(1, required_requests[0].object["id"])
 
     def test_add(self):
-        self.manager.manage = retval
+        self.response.request.action = "add"
+        self.manager.manage.side_effect = retval
+
+        taken_response = self.processor.process(self.response)
+
+        self.assertEqual("handled", taken_response.status)
+
+    def test_generate_unique_key(self):
+        self.response.request.action = "add"
+
+        generated_keys = 0
+
+        def manage(action, data):
+            if action == "get":
+                if "key" in data.keys():
+                    nonlocal generated_keys
+                    if generated_keys:
+                        return []
+                    generated_keys += 1
+                    return [{"user_id": 3, "key": "12342345"}]
+
+        self.manager.manage.side_effect = manage
 
         taken_response = self.processor.process(self.response)
 

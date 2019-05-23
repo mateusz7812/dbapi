@@ -13,8 +13,12 @@ class BasicGuard(Guard):
 
     def resolve(self, response):
         if self.verify_account(response.request.account):
-            return self.verify_action_requirements(response.request)
-        return False
+            if self.verify_action_requirements(response.request):
+                self.get_account(response.request)
+                response.status = "authorized"
+                return response
+        response.status = "not authorized"
+        return response
 
     def verify_action_requirements(self, request):
         processor = self.find_processor(request)
@@ -28,6 +32,20 @@ class BasicGuard(Guard):
                 return True
 
         return False
+
+    def get_account(self, request):
+        if request.account["type"] == "account":
+            taken_response = self.processors["account"].process(
+                BasicResponse("new", BasicRequest({"type": "internal"},
+                                                  {"type": "account", "login": request.account["login"],
+                                                   "password": request.account["password"]}, "get")))
+            request.account = taken_response.result["objects"][0]
+        elif request.account["type"] == "session":
+            taken_response = self.processors["account"].process(
+                BasicResponse("new", BasicRequest({"type": "internal"},
+                                                  {"type": "account", "id": request.account["user_id"]}, "get")))
+            request.account = taken_response.result["objects"][0]
+        return request
 
     def find_processor(self, request):
         try:

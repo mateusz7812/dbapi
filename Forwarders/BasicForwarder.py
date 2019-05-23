@@ -9,7 +9,8 @@ class BasicForwarder(Forwarder):
     def forward(self, request):
         response = self.response_generator.generate(request)
 
-        if not self.guard.resolve(response):
+        self.guard.resolve(response)
+        if response.status != "authorized":
             response.result["status"] = "failed"
             response.result["error"] = "not authorized"
             return response.result
@@ -20,11 +21,6 @@ class BasicForwarder(Forwarder):
         response = self.response_generator.generate(request)
 
         processor = self.find_processor(response)
-
-        required_requests = processor.get_required_requests(response)
-        for required_request in required_requests:
-            result_required = self.get_results(required_request)
-            response.request.required[required_request.object["type"]] = result_required
 
         response = processor.process(response)
         response.result["status"] = response.status

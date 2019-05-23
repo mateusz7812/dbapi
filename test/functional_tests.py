@@ -16,7 +16,6 @@ from Forwarders.BasicForwarder import BasicForwarder
 from Responses.BasicResponseGenerator import BasicResponseGenerator
 from Processors.AccountProcessor import AccountProcessor
 from Processors.ListProcessor import ListProcessor
-from Managers.ManagerInterface import Manager
 
 
 def get_response(data):
@@ -35,21 +34,21 @@ account_processor = AccountProcessor(requestGenerator)
 account_manager = DataBaseManager()
 accounts_writer = TextWriter("accounts")
 account_manager.add_writer(accounts_writer)
-account_processor.add_manager(account_manager)
+account_processor.manager = account_manager
 forwarder.add_processor(account_processor)
 
 list_processor = ListProcessor(requestGenerator)
 lists_manager = DataBaseManager()
 lists_writer = TextWriter("lists")
 lists_manager.add_writer(lists_writer)
-list_processor.add_manager(lists_manager)
+list_processor.manager = lists_manager
 forwarder.add_processor(list_processor)
 
 session_processor = SessionProcessor(requestGenerator)
 sessions_manager = DataBaseManager()
 sessions_writer = TextWriter("sessions")
 sessions_manager.add_writer(sessions_writer)
-session_processor.add_manager(sessions_manager)
+session_processor.manager = sessions_manager
 forwarder.add_processor(session_processor)
 
 taker = TwistedTaker(requestGenerator, forwarder)

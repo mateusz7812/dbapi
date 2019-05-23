@@ -2,7 +2,6 @@ import copy
 import random
 
 from Processors.ProcessorInterface import Processor
-from Requests.BasicRequest import BasicRequest
 
 
 class SessionProcessor(Processor):
@@ -14,16 +13,6 @@ class SessionProcessor(Processor):
         "del": {"anonymous": [], "account": [{"user_id"}], "session": [{"user_id"}],
                 "admin": [set()]}}
 
-    def get_required_requests(self, response):
-        if response.request.action == "add":
-            return [BasicRequest({"type": "internal"}, {"type": "account", "login": response.request.account["login"],
-                                                        "password": response.request.account["password"]}, "get")]
-        elif response.request.action == "get" or response.request.action == "del":
-            return [
-                BasicRequest({"type": "internal"}, {"type": "account", "id": response.request.object["user_id"]},
-                             "get")]
-        return []
-
     def process(self, response):
         data = copy.deepcopy(response.request.object)
         data.pop("type")
@@ -33,11 +22,11 @@ class SessionProcessor(Processor):
                 key = random.randint(1000000000000000000000000,
                                      9999999999999999999999999)
                 data["key"] = str(key)
-            while self.managers[0].manage("get", {"key": data["key"]}):
+            while self.manager.manage("get", {"key": data["key"]}):
                 key = random.randint(1000000000000000000000000,
                                      9999999999999999999999999)
                 data["key"] = str(key)
 
-        response.result["objects"] = self.managers[0].manage(response.request.action, data)
+        response.result["objects"] = self.manager.manage(response.request.action, data)
         response.status = "handled"
         return response

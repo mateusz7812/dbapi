@@ -25,7 +25,7 @@ class TestTaker(TestCase):
     def setUp(self):
         self.program = Main([taker])
         self.program.start()
-        time.sleep(0.1)
+        time.sleep(1)
 
     def tearDown(self):
         self.program.stop()
@@ -33,25 +33,22 @@ class TestTaker(TestCase):
     def test_taking(self):
         data = {
             "account": {"type": "anonymous"},
-            "object": "user",
+            "object": {"type": "user", "login": "login", "password": "password"},
             "action": "add",
-            "data": {
-                "login": "test",
-                "password": "test"
-            }
         }
 
         data_dumped = json.dumps(data)
         all_requests = taker.requests_writer.select({})
+
         if len(all_requests):
-            id = int(max([x["id"] for x in all_requests])) + 1
+            data_id = int(max([x["id"] for x in all_requests])) + 1
         else:
-            id = 1
-        taker.requests_writer.insert({"id": id, "request": data_dumped})
+            data_id = 1
 
-        time.sleep(2)
+        taker.requests_writer.insert({"id": data_id, "request": data_dumped})
 
-        response_dumped = taker.responses_writer.select({"id": id})[0]["response"]
+        time.sleep(3)
+        response_dumped = taker.responses_writer.select({"id": data_id})[0]["response"]
 
         response_data = json.loads(response_dumped)
         self.assertEqual(data, response_data)

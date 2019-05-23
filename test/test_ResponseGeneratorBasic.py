@@ -11,17 +11,7 @@ class TestBasicResponseGenerator(TestCase):
     def setUp(self):
         self.generator = generator()
 
-        data = {
-            "account": {"type": "anonymous"},
-            "object": {"type": "account",
-                       "login": "test",
-                       "password": "test"},
-            "action": "add",
-        }
-
-        dataObject = data["object"]
-        accountObject = data["account"]
-        self.request = BasicRequest(accountObject, dataObject, data["action"])
+        self.request = BasicRequest({"type": "anonymous"}, {"type": "account", "login": "test", "password": "test"}, "add")
 
     def test_response(self):
         response = BasicResponse("new", self.request)

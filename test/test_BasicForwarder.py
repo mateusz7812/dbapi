@@ -2,6 +2,7 @@ import copy
 from unittest import TestCase
 from unittest.mock import patch, Mock
 
+from Processors.ProcessorInterface import Processor
 from Requests.BasicRequest import BasicRequest
 from Forwarders.BasicForwarder import BasicForwarder
 from Responses.BasicResponseGenerator import BasicResponseGenerator
@@ -16,12 +17,9 @@ class TestForwarder(TestCase):
         self.responseGenerator = responseGenerator()
         self.forwarder = forwarder(responseGenerator, guard)
 
-        data_object = {"type": "account",
-                       "login": "test",
-                       "password": "test"}
+        # account_object = {"type": "anonymous"}
 
-        account_object = {"type": "anonymous"}
-        self.request = BasicRequest(account_object, data_object, "add")
+        self.request = BasicRequest({}, {}, "")
 
         def process(response):
             response.status = "handled"
@@ -34,41 +32,25 @@ class TestForwarder(TestCase):
         self.account_processor_mock.process = process
 
     def test_forward(self):
-        self.forwarder.guard.authorization_methods = []
-        self.forwarder.add_processor(self.account_processor_mock)
+        self.request.object = {"type": "account", "login": "test", "password": "test"}
 
-        result = self.forwarder.forward(self.request)
-
-        self.assertEqual(12, result["user_id"])
-
-    def test_forward_with_required(self):
-        self.forwarder.guard.resolve.return_value = True
-        self.forwarder.guard.authorization_methods = []
-
-        def process(response):
-            response.status = "handled"
-            response.result["user_id"] = response.request.required["account"]["user_id"]
-            response.result["user_key"] = "abcdefgh"
+        def resolve(response):
+            response.status = "authorized"
             return response
 
+        self.forwarder.guard.resolve.side_effect = resolve
         self.forwarder.add_processor(self.account_processor_mock)
-        session_processor_mock = Mock()
-        data_object = {"type": "account", "login": "test", "password": "test"}
-        account_object = {"type": "anonymous"}
-        session_processor_mock.get_required_requests.return_value = [BasicRequest(account_object, data_object, "get")]
-        session_processor_mock.process = process
-        session_processor_mock.name = "session"
-        self.forwarder.add_processor(session_processor_mock)
-
-        self.request.object["type"] = "session"
 
         result = self.forwarder.forward(self.request)
-        self.assertEqual("handled", result["status"])
+
         self.assertEqual(12, result["user_id"])
-        self.assertEqual("abcdefgh", result["user_key"])
 
     def test_forward_not_authorized(self):
-        self.forwarder.guard.resolve.return_value = False
+        def resolve(response):
+            response.status = "not authorized"
+            return response
+
+        self.forwarder.guard.resolve.side_effect = resolve
 
         result = self.forwarder.forward(self.request)
 
