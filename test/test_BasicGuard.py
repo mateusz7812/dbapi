@@ -1,19 +1,19 @@
 from unittest import TestCase
 from unittest.mock import Mock
 
-from Guards.BasicGuard import BasicGuard
+from Guards.Authorizer import Authorizer
 from Guards.GuardInterface import Guard
-from Requests.BasicRequest import BasicRequest
-from Responses.BasicResponse import BasicResponse
+from Requests.Request import Request
+from Responses.Response import BasicResponse
 
-guard = BasicGuard
+guard = Authorizer
 
 
 class TestBasicGuard(TestCase):
     def setUp(self):
         self.guard = guard()
 
-        self.response = BasicResponse("new", BasicRequest({}, {}, ""))
+        self.response = BasicResponse("new", Request({}, {}, ""))
 
     def test_settings(self):
         self.assertEqual(self.guard.authorization_methods, ["anonymous", "session", "account", "admin"])

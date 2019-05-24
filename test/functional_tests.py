@@ -1,21 +1,21 @@
 import json
-import os
 from time import sleep
 from unittest import TestCase
 
 import requests
 
-from Guards.BasicGuard import BasicGuard
-from Managers.DataBaseManager import DataBaseManager
-from Processors.SessionProcessor import SessionProcessor
-from Writers.TextWriter import TextWriter
+from Forwarders.Forwarder import Forwarder
+from Guards.Authorizer import Authorizer
 from Main import Main
-from Takers.TwistedTaker import TwistedTaker
-from Requests.RequestGeneratorBasic import BasicRequestGenerator
-from Forwarders.BasicForwarder import BasicForwarder
-from Responses.BasicResponseGenerator import BasicResponseGenerator
+from Managers.DataBaseManager import DataBaseManager
 from Processors.AccountProcessor import AccountProcessor
+from Processors.FollowingProcessor import FollowingProcessor
 from Processors.ListProcessor import ListProcessor
+from Processors.SessionProcessor import SessionProcessor
+from Requests.RequestGenerator import RequestGenerator
+from Responses.ResponseGenerator import ResponseGenerator
+from Takers.TwistedTaker import TwistedTaker
+from Writers.TextWriter import TextWriter
 
 
 def get_response(data):
@@ -24,39 +24,47 @@ def get_response(data):
     return json.loads(response.content)
 
 
-requestGenerator = BasicRequestGenerator
-responseGenerator = BasicResponseGenerator
-guard = BasicGuard
+requestGenerator = RequestGenerator
+responseGenerator = ResponseGenerator
+guard = Authorizer
 
-forwarder = BasicForwarder(responseGenerator, guard)
+forwarder = Forwarder(responseGenerator, guard)
 
-account_processor = AccountProcessor(requestGenerator)
+account_processor = AccountProcessor()
 account_manager = DataBaseManager()
 accounts_writer = TextWriter("accounts")
 account_manager.add_writer(accounts_writer)
 account_processor.manager = account_manager
 forwarder.add_processor(account_processor)
 
-list_processor = ListProcessor(requestGenerator)
+list_processor = ListProcessor()
 lists_manager = DataBaseManager()
 lists_writer = TextWriter("lists")
 lists_manager.add_writer(lists_writer)
 list_processor.manager = lists_manager
 forwarder.add_processor(list_processor)
 
-session_processor = SessionProcessor(requestGenerator)
+session_processor = SessionProcessor()
 sessions_manager = DataBaseManager()
 sessions_writer = TextWriter("sessions")
 sessions_manager.add_writer(sessions_writer)
 session_processor.manager = sessions_manager
 forwarder.add_processor(session_processor)
 
-taker = TwistedTaker(requestGenerator, forwarder)
+following_processor = FollowingProcessor()
+following_manager = DataBaseManager()
+following_writer = TextWriter("follows")
+following_manager.add_writer(following_writer)
+following_processor.manager = following_manager
+forwarder.add_processor(following_processor)
+
+
+twisted_taker = TwistedTaker(requestGenerator, forwarder)
 
 
 class FunctionalTests(TestCase):
     def setUp(self):
-        self.main = Main([taker])
+        self.main = Main([twisted_taker])
         self.main.start()
         lists_writer.delete({})
         accounts_writer.delete({})
@@ -386,7 +394,7 @@ class FunctionalTests(TestCase):
         # admin get
         response = get_response(
             {"account": {"type": "anonymous"},
-             "object": {"type": 'account',  "login": 'login', "password": 'password'},
+             "object": {"type": 'account', "login": 'login', "password": 'password'},
              "action": 'get'})
         self.assertEqual("handled", response["status"])
         self.assertEqual(len(response["objects"]), 1)
@@ -409,5 +417,32 @@ class FunctionalTests(TestCase):
              "action": 'add'})
         self.assertEqual("handled", response["status"])
 
+    def test_following(self):
+        # accounts add
+        response = get_response(
+            {"account": {"type": "anonymous"},
+             "object": {"type": 'account', "login": 'login1', "password": 'password', "nick": 'nick1'},
+             "action": 'add'})
+        self.assertEqual("handled", response["status"])
 
+        response = get_response(
+            {"account": {"type": "anonymous"},
+             "object": {"type": 'account', "login": 'login2', "password": 'password', "nick": 'nick2'},
+             "action": 'add'})
+        self.assertEqual("handled", response["status"])
 
+        response = get_response(
+            {"account": {"type": "anonymous"},
+             "object": {"type": 'account', "login": 'login2', "password": 'password'},
+             "action": 'get'})
+        self.assertEqual("handled", response["status"])
+        self.assertEqual("nick2", response["objects"][0]["nick"])
+
+        user_2_id = response["objects"][0]["id"]
+
+        # user1 follow user2
+        response = get_response(
+            {"account": {"type": "account", "login": 'login1', "password": 'password'},
+             "object": {"type": 'follow', "followed": user_2_id},
+             "action": 'add'})
+        self.assertEqual("handled", response["status"])

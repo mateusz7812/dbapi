@@ -17,6 +17,16 @@ class AccountProcessor(Processor):
         data.pop("type")
 
         if response.request.action == "add":
+            if "login" not in data.keys():
+                response.status = "failed"
+                response.result["error"] = "login not found"
+                return response
+
+            if "password" not in data.keys():
+                response.status = "failed"
+                response.result["error"] = "password not found"
+                return response
+
             same_login_users = self.manager.manage("get", {"login": data["login"]})
             if same_login_users:
                 response.status = "failed"

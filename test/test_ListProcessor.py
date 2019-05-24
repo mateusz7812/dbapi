@@ -3,13 +3,13 @@ import json
 from unittest import TestCase
 from unittest.mock import Mock
 
-from Requests.BasicRequest import BasicRequest
-from Requests.RequestGeneratorBasic import BasicRequestGenerator
-from Responses.BasicResponse import BasicResponse
+from Requests.Request import Request
+from Requests.RequestGenerator import RequestGenerator
+from Responses.Response import BasicResponse
 from Processors.ListProcessor import ListProcessor
 
 processor = ListProcessor
-requestsGenerator = BasicRequestGenerator
+requestsGenerator = RequestGenerator
 
 
 class TestListProcessor(TestCase):
@@ -21,7 +21,7 @@ class TestListProcessor(TestCase):
         self.manager.manage.return_value = []
         self.processor.manager = self.manager
 
-        self.new_response = BasicResponse("", BasicRequest({"id": 1, "login": "login", "password": "password"}, {}, ""))
+        self.new_response = BasicResponse("", Request({"id": 1, "login": "login", "password": "password"}, {}, ""))
 
     def test_Processor(self):
         self.assertEqual("list", self.processor.name)

@@ -1,29 +1,29 @@
 import copy
 from unittest import TestCase
 
-from Requests.BasicRequest import BasicRequest
-from Requests.RequestGeneratorBasic import BasicRequestGenerator
+from Requests.Request import Request
+from Requests.RequestGenerator import RequestGenerator
 
-requestGenerator = BasicRequestGenerator
+requestGenerator = RequestGenerator
 
 
-class TestBasicRequestGenerator(TestCase):
+class TestRequestGenerator(TestCase):
     def setUp(self):
         self.generator = requestGenerator()
 
     def test_request(self):
-        request = BasicRequest({"type": "anonymous"}, {"type": "account", "login": "test", "password": "test"}, "add")
+        request = Request({"type": "anonymous"}, {"type": "account", "login": "test", "password": "test"}, "add")
 
         self.assertEqual(request.account, {"type": "anonymous"})
         self.assertEqual(request.object, {"type": "account", "login": "test", "password": "test"})
         self.assertEqual(request.action, "add")
 
     def test_generate(self):
-        request: BasicRequest = self.generator.generate(
+        request: Request = self.generator.generate(
             {"account": {"type": "anonymous"}, "object": {"type": "account", "login": "test", "password": "test"},
              "action": "add"})
 
-        expected_request = BasicRequest({"type": "anonymous"}, {"type": "account", "login": "test", "password": "test"},
+        expected_request = Request({"type": "anonymous"}, {"type": "account", "login": "test", "password": "test"},
                                         "add")
 
         self.assertEqual(expected_request.account, request.account)

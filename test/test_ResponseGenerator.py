@@ -1,17 +1,17 @@
 from unittest import TestCase
 
-from Requests.BasicRequest import BasicRequest
-from Responses.BasicResponse import BasicResponse
-from Responses.BasicResponseGenerator import BasicResponseGenerator
+from Requests.Request import Request
+from Responses.Response import BasicResponse
+from Responses.ResponseGenerator import ResponseGenerator
 
-generator = BasicResponseGenerator
+generator = ResponseGenerator
 
 
-class TestBasicResponseGenerator(TestCase):
+class TestResponseGenerator(TestCase):
     def setUp(self):
         self.generator = generator()
 
-        self.request = BasicRequest({"type": "anonymous"}, {"type": "account", "login": "test", "password": "test"}, "add")
+        self.request = Request({"type": "anonymous"}, {"type": "account", "login": "test", "password": "test"}, "add")
 
     def test_response(self):
         response = BasicResponse("new", self.request)

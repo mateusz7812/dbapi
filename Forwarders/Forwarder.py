@@ -1,7 +1,7 @@
 from Forwarders.ForwarderInterface import Forwarder
 
 
-class BasicForwarder(Forwarder):
+class Forwarder(Forwarder):
     def __init__(self, response_generator, guard):
         self.guard = guard()
         super().__init__(response_generator)

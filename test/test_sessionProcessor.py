@@ -2,12 +2,12 @@ from unittest import TestCase
 from unittest.mock import Mock
 
 from Processors.SessionProcessor import SessionProcessor
-from Requests.BasicRequest import BasicRequest
-from Requests.RequestGeneratorBasic import BasicRequestGenerator
-from Responses.BasicResponse import BasicResponse
+from Requests.Request import Request
+from Requests.RequestGenerator import RequestGenerator
+from Responses.Response import BasicResponse
 
 processor = SessionProcessor
-requestsGenerator = BasicRequestGenerator
+requestsGenerator = RequestGenerator
 
 
 def retval(action, val):
@@ -24,7 +24,7 @@ class TestSessionProcessor(TestCase):
         self.manager.name = "session"
         self.processor.manager = self.manager
 
-        self.response = BasicResponse("", BasicRequest({}, {"type": "session", "user_id": 1}, ""))
+        self.response = BasicResponse("", Request({}, {"type": "session", "user_id": 1}, ""))
 
     def test_settings(self):
         self.assertEqual("session", self.processor.name)

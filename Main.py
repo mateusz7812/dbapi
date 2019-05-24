@@ -1,13 +1,13 @@
 from multiprocessing import Process
 
-from Forwarders.BasicForwarder import BasicForwarder
-from Guards.BasicGuard import BasicGuard
+from Forwarders.Forwarder import Forwarder
+from Guards.Authorizer import Authorizer
 from Managers.DataBaseManager import DataBaseManager
 from Processors.AccountProcessor import AccountProcessor
 from Processors.ListProcessor import ListProcessor
 from Processors.SessionProcessor import SessionProcessor
-from Requests.RequestGeneratorBasic import BasicRequestGenerator
-from Responses.BasicResponseGenerator import BasicResponseGenerator
+from Requests.RequestGenerator import RequestGenerator
+from Responses.ResponseGenerator import ResponseGenerator
 from Takers.TakerInterface import Taker
 from Takers.TwistedTaker import TwistedTaker
 from Writers.TextWriter import TextWriter
@@ -36,10 +36,10 @@ class Main:
 
 
 if __name__ == "__main__":
-    requestGenerator = BasicRequestGenerator
-    responseGenerator = BasicResponseGenerator
-    guard = BasicGuard()
-    forwarder = BasicForwarder(responseGenerator, guard)
+    requestGenerator = RequestGenerator
+    responseGenerator = ResponseGenerator
+    guard = Authorizer()
+    forwarder = Forwarder(responseGenerator, guard)
 
     account_processor = AccountProcessor(requestGenerator)
     account_manager = DataBaseManager()

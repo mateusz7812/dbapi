@@ -1,9 +1,9 @@
 from Requests.RequestInterface import Request
-from Responses.BasicResponse import BasicResponse
+from Responses.Response import BasicResponse
 from Responses.ResponseGeneratorInterface import ResponseGenerator
 
 
-class BasicResponseGenerator(ResponseGenerator):
+class ResponseGenerator(ResponseGenerator):
     def __init__(self):
         super().__init__()
         self.response_class = BasicResponse

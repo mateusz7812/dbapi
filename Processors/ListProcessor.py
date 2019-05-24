@@ -1,6 +1,5 @@
 import copy
 
-from Requests.BasicRequest import BasicRequest
 from Processors.ProcessorInterface import Processor
 
 
@@ -18,7 +17,8 @@ class ListProcessor(Processor):
         data = copy.deepcopy(response.request.object)
         data.pop("type")
 
-        data["user_id"] = response.request.account["id"]
+        if "user_id" not in data.keys():
+            data["user_id"] = response.request.account["id"]
 
         if response.request.action == "add":
             if "name" not in data.keys():

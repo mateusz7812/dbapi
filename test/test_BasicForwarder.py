@@ -3,12 +3,12 @@ from unittest import TestCase
 from unittest.mock import patch, Mock
 
 from Processors.ProcessorInterface import Processor
-from Requests.BasicRequest import BasicRequest
-from Forwarders.BasicForwarder import BasicForwarder
-from Responses.BasicResponseGenerator import BasicResponseGenerator
+from Requests.Request import Request
+from Forwarders.Forwarder import Forwarder
+from Responses.ResponseGenerator import ResponseGenerator
 
-forwarder = BasicForwarder
-responseGenerator = BasicResponseGenerator
+forwarder = Forwarder
+responseGenerator = ResponseGenerator
 guard = Mock()
 
 
@@ -19,7 +19,7 @@ class TestForwarder(TestCase):
 
         # account_object = {"type": "anonymous"}
 
-        self.request = BasicRequest({}, {}, "")
+        self.request = Request({}, {}, "")
 
         def process(response):
             response.status = "handled"
