@@ -4,6 +4,7 @@ from Forwarders.Forwarder import Forwarder
 from Guards.Authorizer import Authorizer
 from Managers.DataBaseManager import DataBaseManager
 from Processors.AccountProcessor import AccountProcessor
+from Processors.FollowingProcessor import FollowingProcessor
 from Processors.ListProcessor import ListProcessor
 from Processors.SessionProcessor import SessionProcessor
 from Requests.RequestGenerator import RequestGenerator
@@ -41,27 +42,34 @@ if __name__ == "__main__":
     guard = Authorizer()
     forwarder = Forwarder(responseGenerator, guard)
 
-    account_processor = AccountProcessor(requestGenerator)
+    account_processor = AccountProcessor()
     account_manager = DataBaseManager()
     accounts_writer = TextWriter("accounts")
     account_manager.add_writer(accounts_writer)
-    account_processor.add_manager(account_manager)
+    account_processor.manager = account_manager
     forwarder.add_processor(account_processor)
 
-    list_processor = ListProcessor(requestGenerator)
+    list_processor = ListProcessor()
     lists_manager = DataBaseManager()
     lists_writer = TextWriter("lists")
     lists_manager.add_writer(lists_writer)
-    list_processor.add_manager(lists_manager)
+    list_processor.manager = lists_manager
     forwarder.add_processor(list_processor)
 
-    session_processor = SessionProcessor(requestGenerator)
+    session_processor = SessionProcessor()
     sessions_manager = DataBaseManager()
     sessions_writer = TextWriter("sessions")
     sessions_manager.add_writer(sessions_writer)
-    session_processor.add_manager(sessions_manager)
+    session_processor.manager = sessions_manager
     forwarder.add_processor(session_processor)
 
-    taker = TwistedTaker(requestGenerator, forwarder)
-    program = Main([taker])
+    following_processor = FollowingProcessor()
+    following_manager = DataBaseManager()
+    following_writer = TextWriter("follows")
+    following_manager.add_writer(following_writer)
+    following_processor.manager = following_manager
+    forwarder.add_processor(following_processor)
+
+    twisted_taker = TwistedTaker(requestGenerator, forwarder)
+    program = Main([twisted_taker])
     program.start()
