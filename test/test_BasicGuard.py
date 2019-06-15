@@ -38,21 +38,21 @@ class TestBasicGuard(TestCase):
         resolved_response = self.guard.resolve(self.response)
 
         self.assertEqual(account_processor.process.call_args_list[0][0][0].request.object,
-                         {'type': 'account', 'login': 'login'})
+                         {'type': 'account', 'login': 'login', "password": "password"})
         self.assertEqual(resolved_response.status, "authorized")
 
     def test_account_authorization_bad_pass(self):
         self.response.request.account = {"type": "account", "login": "login", "password": "wrong"}
         processor = Mock()
         processor.process.return_value = Mock()
-        processor.process.return_value.result = {"objects": [{"id": 1, "login": "login", "password": "password"}]}
+        processor.process.return_value.result = {"objects": []}
         self.guard.processors["account"] = processor
 
         resolved_response = self.guard.resolve(self.response)
 
         self.assertEqual(self.guard.processors["account"].process.call_args_list[0][0][0].request.object,
-                         {'type': 'account', 'login': 'login'})
-        self.assertEqual(resolved_response.status, "not authorized")
+                         {'type': 'account', 'login': 'login', "password": "wrong"})
+        self.assertEqual(resolved_response.status, "not authorized account")
 
     def test_session_authorization(self):
         self.response.request.account = {"type": "session", "user_id": 1, "key": "123345245245423543"}
@@ -93,7 +93,7 @@ class TestBasicGuard(TestCase):
 
         self.assertEqual(session_processor.process.call_args_list[0][0][0].request.object,
                          {'type': 'session', 'user_id': 1})
-        self.assertEqual(resolved_response.status, "not authorized")
+        self.assertEqual(resolved_response.status, "not authorized account")
 
     def test_admin_authorization(self):
         self.response.request.account = {"type": "admin", "login": "login", "password": "password"}
@@ -114,7 +114,7 @@ class TestBasicGuard(TestCase):
         resolved_response = self.guard.resolve(self.response)
 
         self.assertEqual(account_processor.process.call_args_list[0][0][0].request.object,
-                         {'type': 'account', 'login': "login"})
+                         {'type': 'account', 'login': "login", "password": "password"})
         self.assertEqual(resolved_response.status, "authorized")
 
     def test_admin_authorization_bad_pass(self):
@@ -123,15 +123,15 @@ class TestBasicGuard(TestCase):
         account_processor = Mock()
         account_processor.process.return_value = Mock()
         account_processor.process.return_value.result = {
-            "objects": [{"id": 1, "login": "login", "password": "password", "account_type": "admin"}]}
+            "objects": []}
         self.guard.processors["account"] = account_processor
 
         resolved_response = self.guard.resolve(self.response)
 
         self.assertEqual(account_processor.process.call_args_list[0][0][0].request.object,
-                         {'type': 'account', 'login': "login"})
+                         {'type': 'account', 'login': "login", "password": "wrong"})
 
-        self.assertEqual(resolved_response.status, "not authorized")
+        self.assertEqual(resolved_response.status, "not authorized account")
 
     def test_add_user_authorization(self):
         self.response.request.account = {"type": "anonymous"}
@@ -140,7 +140,7 @@ class TestBasicGuard(TestCase):
 
         account_processor = Mock()
         account_processor.authorization_rules = {
-            "add": {"anonymous": [{"login", "password"}], "account": [], "session": [], "admin": [{}]}}
+            "add": {"anonymous": [{"login", "password"}]}}
         self.guard.processors["account"] = account_processor
 
         resolved_response = self.guard.resolve(self.response)
@@ -154,12 +154,12 @@ class TestBasicGuard(TestCase):
 
         list_processor = Mock()
         list_processor.authorization_rules = {
-            "del": {"anonymous": [], "account": [], "session": [], "admin": [{}]}}
+            "del": {"anonymous": []}}
         self.guard.processors["list"] = list_processor
 
         resolved_response = self.guard.resolve(self.response)
 
-        self.assertEqual(resolved_response.status, "not authorized")
+        self.assertEqual(resolved_response.status, "not authorized action")
 
     def test_get_account(self):
         self.response.request.account = {"type": "account", "login": "login", "password": "password"}
@@ -192,3 +192,25 @@ class TestBasicGuard(TestCase):
                          {"type": "account", "id": 1})
 
         self.assertEqual(request.account, {"id": 1, "login": "login", "password": "password"})
+
+    def test_action_authorization(self):
+        self.response.request.account = {"type": "account", "login": "login", "password": "password"}
+        self.response.request.object = {"type": "test", "data": "some"}
+        self.response.request.action = "test"
+
+        test_processor = Mock()
+        test_processor.name = "test"
+        test_processor.authorization_rules = {"test": {"account": [{"id"}, {"data"}]}}
+        self.guard.processors["test"] = test_processor
+
+        account_processor = Mock()
+        account_processor.process.return_value = Mock()
+        account_processor.process.return_value.result = {
+            "objects": [{"id": 1, "login": "login", "password": "password"}]}
+        self.guard.processors["account"] = account_processor
+
+        resolved_response = self.guard.resolve(self.response)
+
+        self.assertEqual(account_processor.process.call_args_list[0][0][0].request.object,
+                         {'type': 'account', 'login': 'login', "password": "password"})
+        self.assertEqual(resolved_response.status, "authorized")

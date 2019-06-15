@@ -1,7 +1,7 @@
-from Forwarders.ForwarderInterface import Forwarder
+from Forwarders.ForwarderInterface import Forwarder as Interface
 
 
-class Forwarder(Forwarder):
+class Forwarder(Interface):
     def __init__(self, response_generator, guard):
         self.guard = guard()
         super().__init__(response_generator)
@@ -12,7 +12,7 @@ class Forwarder(Forwarder):
         self.guard.resolve(response)
         if response.status != "authorized":
             response.result["status"] = "failed"
-            response.result["error"] = "not authorized"
+            response.result["error"] = response.status
             return response.result
 
         return self.get_results(request)

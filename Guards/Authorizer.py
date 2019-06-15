@@ -17,17 +17,20 @@ class Authorizer(Guard):
                 self.get_account(response.request)
                 response.status = "authorized"
                 return response
-        response.status = "not authorized"
+            else:
+                response.status = "not authorized action"
+        else:
+            response.status = "not authorized account"
         return response
 
     def verify_action_requirements(self, request):
         processor = self.find_processor(request)
         needed_fields_sets = processor.authorization_rules[request.action][request.account["type"]]
 
-        for needed_fields in needed_fields_sets:
-            request_fields = copy.deepcopy(request.object)
-            request_fields.pop("type")
+        request_fields = copy.deepcopy(request.object)
+        request_fields.pop("type")
 
+        for needed_fields in needed_fields_sets:
             if needed_fields.issubset(set(request_fields.keys())):
                 return True
 
@@ -59,11 +62,9 @@ class Authorizer(Guard):
 
         elif response_account["type"] == "account" or response_account["type"] == "admin":
             account_response = BasicResponse("new", Request({"type": "internal"}, {"type": "account", "login":
-                                             response_account["login"]}, "get"))
+                                             response_account["login"], "password": response_account["password"]}, "get"))
             accounts = self.processors["account"].process(account_response).result["objects"]
             if len(accounts) == 1:
-                if response_account["password"] == accounts[0]["password"]:
-
                     if response_account["type"] == "account":
                         return True
 

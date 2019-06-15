@@ -30,16 +30,18 @@ class Main:
             server = Process(target=taker.start)
             server.start()
             self.started_takers.append(server)
+        print("started")
 
     def stop(self):
         for taker in self.started_takers:
             taker.terminate()
+        print("stopped")
 
 
 if __name__ == "__main__":
     requestGenerator = RequestGenerator
     responseGenerator = ResponseGenerator
-    guard = Authorizer()
+    guard = Authorizer
     forwarder = Forwarder(responseGenerator, guard)
 
     account_processor = AccountProcessor()

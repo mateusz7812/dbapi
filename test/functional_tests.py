@@ -214,7 +214,7 @@ class FunctionalTests(TestCase):
              "object": {"type": 'list', "name": "name"},
              "action": 'get'})
         self.assertEqual("failed", response["status"])
-        self.assertEqual("not authorized", response["error"])
+        self.assertEqual("not authorized account", response["error"])
 
         # account delete
         response = get_response(
@@ -239,7 +239,6 @@ class FunctionalTests(TestCase):
         account = response["objects"][0]
         self.assertEqual("handled", response["status"])
         self.assertEqual("login", account["login"])
-        self.assertEqual("password", account["password"])
         self.assertEqual("nick", account["nick"])
         self.assertEqual(int, type(account["id"]))
 
@@ -288,7 +287,6 @@ class FunctionalTests(TestCase):
         account = response["objects"][0]
         self.assertEqual("handled", response["status"])
         self.assertEqual("login", account["login"])
-        self.assertEqual("password", account["password"])
         self.assertEqual("nick", account["nick"])
         self.assertEqual(int, type(account["id"]))
 

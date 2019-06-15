@@ -8,8 +8,8 @@ class ListProcessor(Processor):
 
     authorization_rules = {
         "add": {"anonymous": [], "account": [{"name"}], "session": [{"name"}], "admin": [set()]},
-        "get": {"anonymous": [], "account": [{"user_id"}],
-                "session": [{"user_id"}], "admin": [set()]},
+        "get": {"anonymous": [], "account": [{"user_id"}, {"id"}],
+                "session": [{"user_id"}, {"id"}], "admin": [set()]},
         "del": {"anonymous": [], "account": [{"user_id", "id", "name"}], "session": [{"user_id", "id", "name"}],
                 "admin": [set()]}}
 
@@ -17,8 +17,9 @@ class ListProcessor(Processor):
         data = copy.deepcopy(response.request.object)
         data.pop("type")
 
-        if "user_id" not in data.keys():
-            data["user_id"] = response.request.account["id"]
+        if response.request.action != "get":
+            if "user_id" not in data.keys():
+                data["user_id"] = response.request.account["id"]
 
         if response.request.action == "add":
             if "name" not in data.keys():

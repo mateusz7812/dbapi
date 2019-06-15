@@ -7,8 +7,8 @@ class AccountProcessor(Processor):
     name = "account"
     authorization_rules = {
         "add": {"anonymous": [{"login", "password"}], "account": [], "session": [], "admin": [set()]},
-        "get": {"anonymous": [{"login", "password"}], "account": [{"login", "password"}],
-                "session": [{"login", "password"}], "admin": [set()]},
+        "get": {"anonymous": [{"login", "password"}], "account": [{"nick"}, {"id"}, {"login", "password"}],
+                "session": [{"nick"}, {"id"}, {"login", "password"}], "admin": [set()]},
         "del": {"anonymous": [{"login", "password"}], "account": [{"login", "password"}], "session": [],
                 "admin": [set()]}}
 
@@ -59,4 +59,7 @@ class AccountProcessor(Processor):
 
         response.result["objects"] = self.manager.manage(response.request.action, data)
         response.status = "handled"
+        if response.request.action == "get":
+            for one_object in response.result["objects"]:
+                one_object.pop("password")
         return response

@@ -99,7 +99,6 @@ class TestAccountProcessor(TestCase):
         objects = taken_response.result["objects"]
         self.assertEqual(1, len(objects))
         self.assertEqual("test", objects[0]["login"])
-        self.assertEqual("test", objects[0]["password"])
         self.assertEqual(int, type(objects[0]["id"]))
 
     def test_admin_add(self):

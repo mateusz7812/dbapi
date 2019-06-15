@@ -6,7 +6,7 @@ from twisted.web import server
 
 from Takers.TakerInterface import Taker
 
-print_results = False
+print_results = True
 
 
 class TwistedTaker(Taker, resource.Resource):

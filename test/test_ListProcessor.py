@@ -73,7 +73,7 @@ class TestListProcessor(TestCase):
         self.assertEqual("taken name", taken_response.result["error"])
 
     def test_get(self):
-        self.new_response.request.object = {"type": 'list', "name": "name",
+        self.new_response.request.object = {"type": 'list', "user_id": 1, "name": "name",
                                             "content": json.dumps(["buy milk", "drink milk", "repeat"])}
         self.new_response.request.action = "get"
         self.manager.manage.return_value = [{"id": 1, "user_id": 1, "name": "name",
