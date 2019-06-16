@@ -7,10 +7,10 @@ class FollowingProcessor(Processor):
     name = "follow"
 
     authorization_rules = {
-        "add": {"anonymous": [], "account": [{"followed"}], "session": [], "admin": [set()]},
-        "get": {"anonymous": [], "account": [{"login", "password"}],
-                "session": [], "admin": [set()]},
-        "del": {"anonymous": [], "account": [{"login", "password"}], "session": [],
+        "add": {"anonymous": [], "account": [{"followed"}], "session": [{"followed"}], "admin": [set()]},
+        "get": {"anonymous": [], "account": [{"followed"}],
+                "session": [{"followed"}], "admin": [set()]},
+        "del": {"anonymous": [], "account": [{"followed"}], "session": [{"followed"}],
                 "admin": [set()]}}
 
     def process(self, response):
