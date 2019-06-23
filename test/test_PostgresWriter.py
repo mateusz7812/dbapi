@@ -7,7 +7,7 @@ writer = PostgresWriter
 
 class TestTextWriter(TestCase):
     def setUp(self):
-        self.writer = writer("localhost", "test", "root", "", "test")
+        self.writer = writer("localhost", "test", "root", "root", "test")
 
     @patch('builtins.open', new_callable=mock_open())
     def test_insert(self, m):
