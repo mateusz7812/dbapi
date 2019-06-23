@@ -1,12 +1,6 @@
-
-import json
-import os
 from unittest import TestCase
-from unittest.mock import patch, Mock, MagicMock, mock_open
 
-from Writers.TextWriter import TextWriter
-
-writer = TextWriter
+writer = PostgresWriter
 
 
 class TestTextWriter(TestCase):
@@ -54,14 +48,3 @@ class TestTextWriter(TestCase):
         self.assertEqual([{"id": 10, "data": "asdfgdsa"}], result)
         self.assertEqual([("data/test", "r",), ("data/test", "w",)], [tuple(args[0]) for args in m.call_args_list])
 
-    def test_check_work(self):
-        if os.path.isfile("data/"+self.writer.table):
-            os.remove("data/"+self.writer.table)
-
-        self.assertTrue(self.writer.prepare())
-
-        # check fileExistsError caught
-        self.assertTrue(self.writer.prepare())
-
-        if not os.path.isfile("data/"+self.writer.table):
-            self.fail()

@@ -2,7 +2,9 @@ from multiprocessing import Process
 
 from Forwarders.Forwarder import Forwarder
 from Guards.Authorizer import Authorizer
+from Managers.EmailManager import EmailManager
 from Managers.DataBaseManager import DataBaseManager
+from Processors.EmailProcessor import EmailProcessor
 from Processors.AccountProcessor import AccountProcessor
 from Processors.FollowingProcessor import FollowingProcessor
 from Processors.ListProcessor import ListProcessor
@@ -11,6 +13,7 @@ from Requests.RequestGenerator import RequestGenerator
 from Responses.ResponseGenerator import ResponseGenerator
 from Takers.TakerInterface import Taker
 from Takers.TwistedTaker import TwistedTaker
+from Writers.EmailWriter import EmailWriter
 from Writers.TextWriter import TextWriter
 
 
@@ -71,6 +74,13 @@ if __name__ == "__main__":
     following_manager.add_writer(following_writer)
     following_processor.manager = following_manager
     forwarder.add_processor(following_processor)
+
+    email_processor = EmailProcessor()
+    email_manager = EmailManager()
+    email_writer = EmailWriter()
+    email_manager.add_writer(email_writer)
+    email_processor.manager = email_manager
+    forwarder.add_processor(email_processor)
 
     twisted_taker = TwistedTaker(requestGenerator, forwarder)
     program = Main([twisted_taker])

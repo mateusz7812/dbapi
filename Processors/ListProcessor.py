@@ -1,4 +1,5 @@
 import copy
+import datetime
 
 from Processors.ProcessorInterface import Processor
 
@@ -8,8 +9,8 @@ class ListProcessor(Processor):
 
     authorization_rules = {
         "add": {"anonymous": [], "account": [{"name"}], "session": [{"name"}], "admin": [set()]},
-        "get": {"anonymous": [], "account": [{"user_id"}, {"id"}],
-                "session": [{"user_id"}, {"id"}], "admin": [set()]},
+        "get": {"anonymous": [], "account": [{"user_id"}, {"id"}, {"name"}],
+                "session": [{"user_id"}, {"id"}, {"name"}], "admin": [set()]},
         "del": {"anonymous": [], "account": [{"user_id", "id", "name"}], "session": [{"user_id", "id", "name"}],
                 "admin": [set()]}}
 
@@ -18,7 +19,7 @@ class ListProcessor(Processor):
         data.pop("type")
 
         if response.request.action != "get":
-            if "user_id" not in data.keys():
+            if "user_id" not in data.keys() and response.request.account["type"] != "admin":
                 data["user_id"] = response.request.account["id"]
 
         if response.request.action == "add":
@@ -36,11 +37,15 @@ class ListProcessor(Processor):
             if "id" not in data.keys():
                 rows = self.manager.manage("get", {})
                 if len(rows):
-                    row = rows[0]
+                    row = rows[-1]
                     last_id = row["id"]
                 else:
                     last_id = 0
                 data["id"] = last_id + 1
+
+            if "date" not in data.keys():
+                now = datetime.datetime.now()
+                data["date"] = now.strftime("%Y-%m-%d %H:%M")
 
         response.result["objects"] = self.manager.manage(response.request.action, data)
         response.status = "handled"

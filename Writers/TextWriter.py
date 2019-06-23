@@ -1,6 +1,6 @@
 import json
 
-from Writers.WriterInterface import Writer
+from Writers.WriterInterface import DataWriter
 
 
 def match(values, line):
@@ -10,7 +10,10 @@ def match(values, line):
     return True
 
 
-class TextWriter(Writer):
+class TextWriter(DataWriter):
+    def __init__(self, table):
+        self.table = table
+
     def prepare(self):
         try:
             with open("data/"+self.table, "x") as _:

@@ -1,6 +1,6 @@
-class Writer:
-    def __init__(self, table):
-        self.table = table
+class DataWriter:
+    def prepare(self):
+        raise NotImplementedError
 
     def insert(self, values: {}):
         raise NotImplementedError
