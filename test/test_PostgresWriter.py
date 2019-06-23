@@ -1,11 +1,13 @@
 from unittest import TestCase
 
+from Writers.PostgresWriter import PostgresWriter
+
 writer = PostgresWriter
 
 
 class TestTextWriter(TestCase):
     def setUp(self):
-        self.writer = writer("test")
+        self.writer = writer("localhost", "test", "root", "", "test")
 
     @patch('builtins.open', new_callable=mock_open())
     def test_insert(self, m):
