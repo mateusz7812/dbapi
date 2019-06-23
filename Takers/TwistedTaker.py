@@ -32,7 +32,7 @@ class TwistedTaker(Taker, resource.Resource):
 
     def start(self):
         site = server.Site(self)
-        reactor.listenTCP(8080, site)
+        reactor.listenTCP(7000, site)
         return reactor.run()
 
     def stop(self):
