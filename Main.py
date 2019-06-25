@@ -50,7 +50,7 @@ if __name__ == "__main__":
 
     account_processor = AccountProcessor()
     account_manager = DataBaseManager()
-    accounts_writer = PostgresWriter("127.0.0.1", "postgres", "postgres", "zaq1@WSX", "account")
+    accounts_writer = PostgresWriter("localhost", "postgres", "postgres", "zaq1@WSX", "account")
     account_manager.add_writer(accounts_writer)
     account_processor.manager = account_manager
     forwarder.add_processor(account_processor)
