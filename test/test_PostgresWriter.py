@@ -1,4 +1,5 @@
 from unittest import TestCase
+from unittest.mock import patch
 
 from Writers.PostgresWriter import PostgresWriter
 
@@ -6,47 +7,38 @@ writer = PostgresWriter
 
 
 class TestTextWriter(TestCase):
-    def setUp(self):
-        self.writer = writer("localhost", "test", "root", "root", "test")
 
-    @patch('builtins.open', new_callable=mock_open())
-    def test_insert(self, m):
+    @patch('psycopg2.connect')
+    def test_insert(self, conn):
+        self.writer = writer("bad", "postgres", "postgres", "zaq1@WSX", "test")
+        self.writer.prepare()
 
-        result = self.writer.insert({"id": 10, "data": "asdfgdsa"})
+        result = self.writer.insert({"test": '1', "id": 1})
 
         self.assertTrue(result)
-        self.assertEqual(("data/test", "a",), m.call_args[0])
-        self.assertEqual((json.dumps({"id": 10, "data": "asdfgdsa"}) + "\n",),
-                         m.return_value.__enter__.return_value.write.call_args[0])
+        conn.return_value.cursor.return_value.execute.assert_called_with('INSERT INTO test(test, id) VALUES ("1", 1)')
 
-    @patch('builtins.open', new_callable=mock_open())
-    def test_select(self, m):
-        m.return_value.__enter__.return_value.readlines.return_value = [
-            json.dumps({"id": 10, "data": "asdfgdsa"}) + "\n", json.dumps({"id": 19, "data": "fgsdga"}) + "\n"]
+    @patch('psycopg2.connect')
+    def test_select(self, conn):
+        self.writer = writer("bad", "postgres", "postgres", "zaq1@WSX", "test")
+        self.writer.prepare()
+        conn.return_value.cursor.return_value.fetchall.return_value = [
+            {"test": '1', "id": 1, "data": None, "some_data": None}]
 
-        result = self.writer.select({"id": 10})
+        result = self.writer.select({"test": '1', "id": 1})
 
-        self.assertEqual([{"id": 10, "data": "asdfgdsa"}], result)
-        self.assertEqual(("data/test", "r",), m.call_args[0])
+        self.assertEqual([{"id": 1, "test": '1'}], result)
+        conn.return_value.cursor.return_value.execute.assert_called_with(
+            'SELECT * from test where test = "1" AND id = 1')
 
-    @patch('builtins.open', new_callable=mock_open())
-    def test_select_second(self, m):
-        m.return_value.__enter__.return_value.readlines.return_value = []
+    @patch('psycopg2.connect')
+    def test_delete(self, conn):
+        self.writer = writer("bad", "postgres", "postgres", "zaq1@WSX", "test")
+        self.writer.prepare()
+        conn.return_value.cursor.return_value.fetchall.return_value = [
+            {"test": 1, "id": 1, "data": None, "some_data": None}]
 
-        result = self.writer.select({})
+        result = self.writer.delete({"id": 1})
 
-        self.assertEqual([], result)
-        self.assertEqual(("data/test", "r",), m.call_args[0])
-
-    @patch('builtins.open', new_callable=mock_open())
-    def test_delete(self, m):
-        m.return_value.__enter__.return_value.readlines.return_value = [
-            json.dumps({"id": 10, "data": "asdfgdsa"}) + "\n", json.dumps({"id": 19, "data": "fgsdga"}) + "\n"]
-
-        result = self.writer.delete({"id": 10})
-
-        m.return_value.__enter__.return_value.readlines.assert_called()
-        m.return_value.__enter__.return_value.write.assert_called_once_with(json.dumps({"id": 19, "data": "fgsdga"}) + "\n")
-        self.assertEqual([{"id": 10, "data": "asdfgdsa"}], result)
-        self.assertEqual([("data/test", "r",), ("data/test", "w",)], [tuple(args[0]) for args in m.call_args_list])
-
+        self.assertEqual([{"id": 1, "test": 1}], result)
+        conn.return_value.cursor.return_value.execute.assert_called_with('DELETE FROM test WHERE id = 1 RETURNING *')

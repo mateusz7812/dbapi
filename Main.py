@@ -13,6 +13,7 @@ from Requests.RequestGenerator import RequestGenerator
 from Responses.ResponseGenerator import ResponseGenerator
 from Takers.TakerInterface import Taker
 from Takers.TwistedTaker import TwistedTaker
+from Writers.PostgresWriter import PostgresWriter
 from Writers.EmailWriter import EmailWriter
 from Writers.TextWriter import TextWriter
 
@@ -49,7 +50,7 @@ if __name__ == "__main__":
 
     account_processor = AccountProcessor()
     account_manager = DataBaseManager()
-    accounts_writer = TextWriter("accounts")
+    accounts_writer = PostgresWriter("localhost",  "postgres", "postgres", "zaq1@WSX", "account")
     account_manager.add_writer(accounts_writer)
     account_processor.manager = account_manager
     forwarder.add_processor(account_processor)
