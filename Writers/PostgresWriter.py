@@ -55,8 +55,10 @@ class PostgresWriter(DataWriter):
             conditions += "{} = {}".format(key, json.dumps(values[key]).replace("\"", "\'"))
             if i != len(values)-1:
                 conditions += " AND "
+        if conditions:
+            conditions = " where " + conditions
 
-        cur.execute("""SELECT * from {} where {}""".format(self.table, conditions))
+        cur.execute("""SELECT * from {}{}""".format(self.table, conditions))
         raw_rows = cur.fetchall()
         cleared_rows = []
         if raw_rows:
