@@ -50,14 +50,14 @@ if __name__ == "__main__":
 
     account_processor = AccountProcessor()
     account_manager = DataBaseManager()
-    accounts_writer = PostgresWriter("postgres", "postgres", "postgres", "zaq1@WSX", "account")
+    accounts_writer = PostgresWriter("postgres", "postgres", "postgres", "zaq1@WSX", "accounts")
     account_manager.add_writer(accounts_writer)
     account_processor.manager = account_manager
     forwarder.add_processor(account_processor)
 
     list_processor = ListProcessor()
     lists_manager = DataBaseManager()
-    lists_writer = TextWriter("lists")
+    lists_writer = PostgresWriter("postgres", "postgres", "postgres", "zaq1@WSX", "lists")
     lists_manager.add_writer(lists_writer)
     list_processor.manager = lists_manager
     forwarder.add_processor(list_processor)

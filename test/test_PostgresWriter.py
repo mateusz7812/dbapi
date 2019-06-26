@@ -16,7 +16,7 @@ class TestTextWriter(TestCase):
         result = self.writer.insert({"test": '1', "id": 1})
 
         self.assertTrue(result)
-        conn.return_value.cursor.return_value.execute.assert_called_with('INSERT INTO test(test, id) VALUES ("1", 1)')
+        conn.return_value.cursor.return_value.execute.assert_called_with('INSERT INTO test(test, id) VALUES (\'1\', 1)')
 
     @patch('psycopg2.connect')
     def test_select(self, conn):
@@ -29,7 +29,7 @@ class TestTextWriter(TestCase):
 
         self.assertEqual([{"id": 1, "test": '1'}], result)
         conn.return_value.cursor.return_value.execute.assert_called_with(
-            'SELECT * from test where test = "1" AND id = 1')
+            'SELECT * from test where test = \'1\' AND id = 1')
 
     @patch('psycopg2.connect')
     def test_delete(self, conn):
