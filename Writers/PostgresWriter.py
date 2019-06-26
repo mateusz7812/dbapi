@@ -52,7 +52,7 @@ class PostgresWriter(DataWriter):
         conditions = ""
         for i in range(len(values)):
             key = list(values.keys())[i]
-            conditions += "{} = {}".format(key, json.dumps(values[key]))
+            conditions += "{} = {}".format(key, values[key])
             if i != len(values)-1:
                 conditions += " AND "
 
