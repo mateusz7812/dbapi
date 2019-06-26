@@ -1,4 +1,5 @@
 import json
+import sys
 
 from twisted.web import resource
 from twisted.internet import reactor
@@ -27,6 +28,7 @@ class TwistedTaker(Taker, resource.Resource):
         response = self.take(loaded_data)
         if print_results:
             print("\nPOST request", data, "\n response", response, "\n")
+            sys.stdout.flush()
         response = json.dumps(response)
         return bytes(response, "utf-8")
 
