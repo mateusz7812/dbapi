@@ -27,7 +27,7 @@ class TwistedTaker(Taker, resource.Resource):
         loaded_data = json.loads(data)
         response = self.take(loaded_data)
         if print_results:
-            print("\nPOST request", data, "\n response", response, "\n")
+            print("POST request", data, "\n response", response)
             sys.stdout.flush()
         response = json.dumps(response)
         return bytes(response, "utf-8")
