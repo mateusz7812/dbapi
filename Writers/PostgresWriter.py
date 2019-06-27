@@ -84,12 +84,13 @@ class PostgresWriter(DataWriter):
         cur.execute("""DELETE FROM {} WHERE {} RETURNING *""".format(self.table, conditions))
         self.conn.commit()
         raw_rows = cur.fetchall()
-        columns = list(raw_rows[0].keys())
         cleared_rows = []
-        for row in raw_rows:
-            cleared_row = {}
-            for column in columns:
-                if row[column]:
-                    cleared_row[column] = row[column]
-            cleared_rows.append(cleared_row)
+        if raw_rows:
+            columns = list(raw_rows[0].keys())
+            for row in raw_rows:
+                cleared_row = {}
+                for column in columns:
+                    if row[column]:
+                        cleared_row[column] = row[column]
+                cleared_rows.append(cleared_row)
         return cleared_rows
