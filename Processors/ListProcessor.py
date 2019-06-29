@@ -15,8 +15,6 @@ class ListProcessor(Processor):
                 "admin": [set()]}}
 
     def process(self, response):
-        print(response.request.account)
-
         data = copy.deepcopy(response.request.object)
         data.pop("type")
 
