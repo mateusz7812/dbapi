@@ -46,7 +46,7 @@ class TestFollowingProcessor(TestCase):
         taken_response = self.processor.process(self.response)
 
         self.assertEqual("handled", taken_response.status)
-        manager.manage.assert_called_with("get", {"follower": 3})
+        manager.manage.assert_called_with("get", {})
         self.assertEqual([{"follower": 3, "followed": 4}, {"follower": 3, "followed": 8},
                           {"follower": 3, "followed": 10}], taken_response.result["objects"])
 

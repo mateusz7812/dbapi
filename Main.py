@@ -76,6 +76,13 @@ if __name__ == "__main__":
     following_processor.manager = following_manager
     forwarder.add_processor(following_processor)
 
+    group_processor = GroupProcessor()
+    group_manager = DataBaseManager()
+    group_writer = TextWriter("group")
+    group_manager.add_writer(group_writer)
+    group_processor.manager = group_manager
+    forwarder.add_processor(group_processor)
+
     email_processor = EmailProcessor()
     email_manager = EmailManager()
     email_writer = EmailWriter()

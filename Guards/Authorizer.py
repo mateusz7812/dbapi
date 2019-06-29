@@ -37,11 +37,11 @@ class Authorizer(Guard):
         return False
 
     def get_account(self, request):
-        if request.account["type"] == "account":
+        if request.account["type"] == "account" or request.account["type"] == "admin":
             taken_response = self.processors["account"].process(
                 BasicResponse("new", Request({"type": "internal"},
                                              {"type": "account", "login": request.account["login"],
-                                                   "password": request.account["password"]}, "get")))
+                                              "password": request.account["password"]}, "get")))
             request.account = taken_response.result["objects"][0]
         elif request.account["type"] == "session":
             taken_response = self.processors["account"].process(
@@ -61,20 +61,21 @@ class Authorizer(Guard):
             return True
 
         elif response_account["type"] == "account" or response_account["type"] == "admin":
-            account_response = BasicResponse("new", Request({"type": "internal"}, {"type": "account", "login":
-                                             response_account["login"], "password": response_account["password"]}, "get"))
+            account_response = BasicResponse("new", Request({"type": "internal"},
+                                                            {"type": "account", "login": response_account["login"],
+                                                             "password": response_account["password"]}, "get"))
             accounts = self.processors["account"].process(account_response).result["objects"]
             if len(accounts) == 1:
-                    if response_account["type"] == "account":
-                        return True
+                if response_account["type"] == "account":
+                    return True
 
-                    elif response_account["type"] == "admin":
-                        if accounts[0]["account_type"] == "admin":
-                            return True
+                elif response_account["type"] == "admin":
+                    if accounts[0]["account_type"] == "admin":
+                        return True
 
         elif response_account["type"] == "session":
             session_response = BasicResponse("new", Request({"type": "internal"}, {"type": "session", "user_id":
-                                             response_account["user_id"]}, "get"))
+                response_account["user_id"]}, "get"))
             sessions = self.processors["session"].process(session_response).result["objects"]
             keys = [session["key"] for session in sessions]
             if response_account["key"] in keys:

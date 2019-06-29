@@ -8,8 +8,10 @@ from Forwarders.Forwarder import Forwarder
 from Guards.Authorizer import Authorizer
 from Main import Main
 from Managers.DataBaseManager import DataBaseManager
+from Managers.DividedDataBaseManager import DividedDataBaseManager
 from Processors.AccountProcessor import AccountProcessor
 from Processors.FollowingProcessor import FollowingProcessor
+from Processors.GroupProcessor import GroupProcessor
 from Processors.ListProcessor import ListProcessor
 from Processors.SessionProcessor import SessionProcessor
 from Requests.RequestGenerator import RequestGenerator
@@ -20,7 +22,7 @@ from Writers.TextWriter import TextWriter
 
 def get_response(data):
     data_dumped = json.dumps(data)
-    response = requests.post("http://127.0.0.1:8080", data_dumped)
+    response = requests.post("http://127.0.0.1:7000", data_dumped)
     return json.loads(response.content)
 
 
@@ -52,12 +54,22 @@ session_processor.manager = sessions_manager
 forwarder.add_processor(session_processor)
 
 following_processor = FollowingProcessor()
-following_manager = DataBaseManager()
-following_writer = TextWriter("follows")
-following_manager.add_writer(following_writer)
+following_manager = DividedDataBaseManager("following")
+following_account_writer = TextWriter("follow_account")
+following_list_writer = TextWriter("follow_list")
+following_group_writer = TextWriter("follow_group")
+following_manager.add_writer(following_account_writer)
+following_manager.add_writer(following_list_writer)
+following_manager.add_writer(following_group_writer)
 following_processor.manager = following_manager
 forwarder.add_processor(following_processor)
 
+group_processor = GroupProcessor()
+group_manager = DataBaseManager()
+group_writer = TextWriter("group")
+group_manager.add_writer(group_writer)
+group_processor.manager = group_manager
+forwarder.add_processor(group_processor)
 
 twisted_taker = TwistedTaker(requestGenerator, forwarder)
 
@@ -68,6 +80,11 @@ class FunctionalTests(TestCase):
         self.main.start()
         lists_writer.delete({})
         accounts_writer.delete({})
+        group_writer.delete({})
+        sessions_writer.delete({})
+        following_account_writer.delete({})
+        following_group_writer.delete({})
+        following_list_writer.delete({})
         sleep(0.5)
 
     def tearDown(self):
@@ -387,6 +404,7 @@ class FunctionalTests(TestCase):
              "object": {"type": 'account', "login": 'other', "password": 'password',
                         "account_type": "admin"},
              "action": 'add'})
+        print(response)
         self.assertEqual("failed", response["status"])
 
         # admin get
@@ -416,7 +434,7 @@ class FunctionalTests(TestCase):
         self.assertEqual("handled", response["status"])
 
     def test_following(self):
-        # accounts add
+        # account add
         response = get_response(
             {"account": {"type": "anonymous"},
              "object": {"type": 'account', "login": 'login1', "password": 'password', "nick": 'nick1'},
@@ -441,6 +459,45 @@ class FunctionalTests(TestCase):
         # user1 follow user2
         response = get_response(
             {"account": {"type": "account", "login": 'login1', "password": 'password'},
-             "object": {"type": 'follow', "followed": user_2_id},
+             "object": {"type": 'follow', "id": 1, "followed": user_2_id, "following": "follow_account"},
              "action": 'add'})
         self.assertEqual("handled", response["status"])
+
+        # group add
+        response = get_response(
+            {"account": {"type": 'account', "login": 'login1', "password": 'password'},
+             "object": {"type": 'group', "name": "test"},
+             "action": 'add'})
+        self.assertEqual("handled", response["status"])
+
+        response = get_response(
+            {"account": {"type": 'account', "login": 'login1', "password": 'password'},
+             "object": {"type": 'group', "name": "test"},
+             "action": 'get'})
+        self.assertEqual("handled", response["status"])
+        group_id = response["objects"][0]["id"]
+
+        # user1 follow test group
+        response = get_response(
+            {"account": {"type": "account", "login": 'login1', "password": 'password'},
+             "object": {"type": 'follow', "id": 1, "followed": group_id, "following": "follow_group"},
+             "action": 'add'})
+        self.assertEqual("handled", response["status"])
+
+        self.assertNotEqual(user_2_id, group_id)
+
+        # check follows
+        response = get_response(
+            {"account": {"type": "account", "login": 'login1', "password": 'password'},
+             "object": {"type": 'follow', "id": 1, "following": "follow_account"},
+             "action": 'get'})
+        self.assertEqual("handled", response["status"])
+        self.assertEqual(user_2_id, response["objects"][0]["followed"])
+
+        response = get_response(
+            {"account": {"type": "account", "login": 'login1', "password": 'password'},
+             "object": {"type": 'follow', "id": 1, "following": "follow_group"},
+             "action": 'get'})
+        self.assertEqual("handled", response["status"])
+        self.assertEqual(group_id, response["objects"][0]["followed"])
+

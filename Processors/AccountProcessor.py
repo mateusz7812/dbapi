@@ -52,7 +52,12 @@ class AccountProcessor(Processor):
             if "account_type" in data.keys():
                 admins = self.manager.manage("get", {"account_type": "admin"})
                 if len(admins):
-                    if response.request.account["type"] != "admin":
+                    if "account_type" in response.request.account.keys():
+                        if response.request.account["account_type"] != "admin":
+                            response.status = "failed"
+                            response.result["error"] = "first admin added"
+                            return response
+                    else:
                         response.status = "failed"
                         response.result["error"] = "first admin added"
                         return response

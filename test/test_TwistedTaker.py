@@ -32,7 +32,7 @@ class TestTaker(TestCase):
         self.program.stop()
 
     def test_alive(self):
-        response = requests.get("http://127.0.0.1:8080")
+        response = requests.get("http://127.0.0.1:7000")
         self.assertEqual(200, response.status_code)
 
     def test_taking(self):
@@ -46,6 +46,6 @@ class TestTaker(TestCase):
             }
         }
         data_dumped = json.dumps(data)
-        response = requests.post("http://127.0.0.1:8080", data_dumped)
+        response = requests.post("http://127.0.0.1:7000", data_dumped)
         response_data = json.loads(response.content)
         self.assertEqual(data, response_data)

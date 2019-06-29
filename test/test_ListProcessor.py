@@ -3,10 +3,10 @@ import json
 from unittest import TestCase
 from unittest.mock import Mock
 
+from Processors.ListProcessor import ListProcessor
 from Requests.Request import Request
 from Requests.RequestGenerator import RequestGenerator
 from Responses.Response import BasicResponse
-from Processors.ListProcessor import ListProcessor
 
 processor = ListProcessor
 requestsGenerator = RequestGenerator
@@ -34,8 +34,10 @@ class TestListProcessor(TestCase):
         taken_response = self.processor.process(self.new_response)
 
         self.assertEqual("handled", taken_response.status)
-        self.manager.manage.assert_called_with('add', {"id": 1, "user_id": 1, "name": "name",
-                                                       "content": json.dumps(["buy milk", "drink milk", "repeat"])})
+        call_args = list(self.manager.manage.call_args_list[2][0])
+        del call_args[1]["date"]
+        self.assertEqual(['add', {"id": 1, "user_id": 1, "name": "name",
+                                  "content": json.dumps(["buy milk", "drink milk", "repeat"])}], call_args)
 
     def test_add_get_id(self):
         self.new_response.request.object = {"type": 'list', "name": "name",
@@ -55,9 +57,10 @@ class TestListProcessor(TestCase):
         taken_response = self.processor.process(self.new_response)
         self.assertEqual("handled", taken_response.status)
 
-        self.manager.manage.assert_called_with('add', {"id": 2, "user_id": 1, "name": "name",
-                                                       "content": json.dumps(
-                                                           ["buy milk", "drink milk", "repeat"])})
+        call_args = list(self.manager.manage.call_args_list[2][0])
+        del call_args[1]["date"]
+        self.assertEqual(['add', {"id": 2, "user_id": 1, "name": "name",
+                                  "content": json.dumps(["buy milk", "drink milk", "repeat"])}], call_args)
 
     def test_add_same_name(self):
         self.new_response.request.action = "add"

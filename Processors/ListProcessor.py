@@ -15,11 +15,13 @@ class ListProcessor(Processor):
                 "admin": [set()]}}
 
     def process(self, response):
+        print(response.request.account)
+
         data = copy.deepcopy(response.request.object)
         data.pop("type")
 
         if response.request.action != "get":
-            if "user_id" not in data.keys() and response.request.account["type"] != "admin":
+            if "user_id" not in data.keys():
                 data["user_id"] = response.request.account["id"]
 
         if response.request.action == "add":

@@ -7,17 +7,19 @@ class FollowingProcessor(Processor):
     name = "follow"
 
     authorization_rules = {
-        "add": {"anonymous": [], "account": [{"followed"}], "session": [{"followed"}], "admin": [set()]},
-        "get": {"anonymous": [], "account": [{"followed"}, {"follower"}],
-                "session": [{"followed"}, {"follower"}], "admin": [set()]},
-        "del": {"anonymous": [], "account": [{"followed"}], "session": [{"followed"}],
-                "admin": [set()]}}
+        "add": {"anonymous": [], "account": [{"followed", "following"}], "session": [{"followed", "following"}],
+                "admin": [{"following"}]},
+        "get": {"anonymous": [], "account": [{"id", "following"}, {"followed", "following"}, {"follower", "following"}],
+                "session": [{"id", "following"}, {"followed", "following"}, {"follower", "following"}],
+                "admin": [{"following"}]},
+        "del": {"anonymous": [], "account": [{"followed", "following"}], "session": [{"followed", "following"}],
+                "admin": [{"following"}]}}
 
     def process(self, response):
         data = copy.deepcopy(response.request.object)
         data.pop("type")
 
-        if response.request.action == "add":
+        if response.request.action == "add" or response.request.action == "del":
             if "follower" not in data.keys():
                 data["follower"] = response.request.account["id"]
 
