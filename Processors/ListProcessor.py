@@ -18,7 +18,7 @@ class ListProcessor(Processor):
         data = copy.deepcopy(response.request.object)
         data.pop("type")
 
-        if response.request.action != "get":
+        if response.request.action != "get" and "account_type" not in response.request.account:
             if "user_id" not in data.keys():
                 data["user_id"] = response.request.account["id"]
 
