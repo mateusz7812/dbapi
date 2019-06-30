@@ -3,6 +3,7 @@ from multiprocessing import Process
 from Forwarders.Forwarder import Forwarder
 from Guards.Authorizer import Authorizer
 from Managers.DataBaseManager import DataBaseManager
+from Managers.DividedDataBaseManager import DividedDataBaseManager
 from Managers.EmailManager import EmailManager
 from Processors.AccountProcessor import AccountProcessor
 from Processors.EmailProcessor import EmailProcessor
@@ -71,7 +72,7 @@ if __name__ == "__main__":
     forwarder.add_processor(session_processor)
 
     following_processor = FollowingProcessor()
-    following_manager = DataBaseManager()
+    following_manager = DividedDataBaseManager("following")
     following_account_writer = PostgresWriter("postgres", "postgres", "postgres", "zaq1@WSX", "follow_account")
     following_list_writer = PostgresWriter("postgres", "postgres", "postgres", "zaq1@WSX", "follow_list")
     following_group_writer = PostgresWriter("postgres", "postgres", "postgres", "zaq1@WSX", "follow_group")
