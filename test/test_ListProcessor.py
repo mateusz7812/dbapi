@@ -34,9 +34,9 @@ class TestListProcessor(TestCase):
         taken_response = self.processor.process(self.new_response)
 
         self.assertEqual("handled", taken_response.status)
-        call_args = list(self.manager.manage.call_args_list[2][0])
+        call_args = list(self.manager.manage.call_args_list[1][0])
         del call_args[1]["date"]
-        self.assertEqual(['add', {"id": 1, "user_id": 1, "name": "name",
+        self.assertEqual(['add', {"user_id": 1, "name": "name",
                                   "content": json.dumps(["buy milk", "drink milk", "repeat"])}], call_args)
 
     def test_add_get_id(self):
@@ -57,9 +57,9 @@ class TestListProcessor(TestCase):
         taken_response = self.processor.process(self.new_response)
         self.assertEqual("handled", taken_response.status)
 
-        call_args = list(self.manager.manage.call_args_list[2][0])
+        call_args = list(self.manager.manage.call_args_list[1][0])
         del call_args[1]["date"]
-        self.assertEqual(['add', {"id": 2, "user_id": 1, "name": "name",
+        self.assertEqual(['add', {"user_id": 1, "name": "name",
                                   "content": json.dumps(["buy milk", "drink milk", "repeat"])}], call_args)
 
     def test_add_same_name(self):

@@ -39,7 +39,7 @@ class TestAccountProcessor(TestCase):
 
         taken_response = self.processor.process(self.response)
         self.assertEqual("handled", taken_response.status)
-        self.assertEqual(('add', {"id": 11, 'login': 'test', 'password': 'test'}), self.manager.manage.call_args[0])
+        self.assertEqual(('add', {'login': 'test', 'password': 'test'}), self.manager.manage.call_args[0])
 
     def test_process_add_get_first_index(self):
         self.response.request.object = {"type": "account", "login": "test", "password": "test"}
@@ -53,7 +53,7 @@ class TestAccountProcessor(TestCase):
         self.manager.manage.side_effect = ret_func
 
         taken_response = self.processor.process(self.response)
-        self.assertEqual(('add', {"id": 1, 'login': 'test', 'password': 'test'}), self.manager.manage.call_args[0])
+        self.assertEqual(('add', {'login': 'test', 'password': 'test'}), self.manager.manage.call_args[0])
         self.assertEqual("handled", taken_response.status)
 
     def test_process_add_same_login(self):

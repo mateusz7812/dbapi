@@ -24,6 +24,11 @@ class TextWriter(DataWriter):
             return False
 
     def insert(self, values: {}):
+        if "id" not in values.keys():
+            rows = self.select({})
+            ids = list(map(lambda x: x["id"], rows))
+            ids.append(0)
+            values["id"] = max(ids) + 1
         with open("data/"+self.table, "a") as file:
             file.write(json.dumps(values) + "\n")
         return True

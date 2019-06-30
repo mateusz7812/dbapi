@@ -34,15 +34,6 @@ class ListProcessor(Processor):
                 response.result["error"] = "taken name"
                 return response
 
-            if "id" not in data.keys():
-                rows = self.manager.manage("get", {})
-                if len(rows):
-                    row = rows[-1]
-                    last_id = row["id"]
-                else:
-                    last_id = 0
-                data["id"] = last_id + 1
-
             if "date" not in data.keys():
                 now = datetime.datetime.now()
                 data["date"] = now.strftime("%Y-%m-%d %H:%M")

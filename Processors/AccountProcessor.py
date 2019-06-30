@@ -40,15 +40,6 @@ class AccountProcessor(Processor):
                     response.result["error"] = "taken nick"
                     return response
 
-            if "id" not in data.keys():
-                rows = self.manager.manage("get", {})
-                if len(rows):
-                    row = rows[-1]
-                    last_id = row["id"]
-                else:
-                    last_id = 0
-                data["id"] = last_id + 1
-
             if "account_type" in data.keys():
                 admins = self.manager.manage("get", {"account_type": "admin"})
                 if len(admins):

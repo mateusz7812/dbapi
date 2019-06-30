@@ -29,7 +29,7 @@ class TestListProcessor(TestCase):
         taken_response = self.processor.process(self.new_response)
 
         self.assertEqual("handled", taken_response.status)
-        self.manager.manage.assert_called_with('add', {"id": 1, "name": "my_group", "admin_id": 1})
+        self.manager.manage.assert_called_with('add', {"name": "my_group", "admin_id": 1})
 
     def test_get(self):
         self.new_response.request.object = {"type": 'group', "name": "my_group"}
