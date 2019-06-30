@@ -1,5 +1,6 @@
 import json
 import sys
+import traceback
 
 from twisted.web import resource
 from twisted.internet import reactor
@@ -27,8 +28,8 @@ class TwistedTaker(Taker, resource.Resource):
         loaded_data = json.loads(data)
         try:
             response = self.take(loaded_data)
-        except Exception as x:
-            print("ERROR", x.args, x.__traceback__, "POST request", data)
+        except Exception as exc:
+            print("ERROR", traceback.print_exception(type(exc), exc, exc.__traceback__), "POST request", data)
             return bytes(json.dumps({"error": "internal"}), "utf-8")
         if print_results:
             print("POST request", data, "\n response", response)
