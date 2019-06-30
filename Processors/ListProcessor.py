@@ -9,9 +9,9 @@ class ListProcessor(Processor):
 
     authorization_rules = {
         "add": {"anonymous": [], "account": [{"name"}], "session": [{"name"}], "admin": [set()]},
-        "get": {"anonymous": [], "account": [{"user_id"}, {"id"}, {"name"}],
-                "session": [{"user_id"}, {"id"}, {"name"}], "admin": [set()]},
-        "del": {"anonymous": [], "account": [{"user_id", "id", "name"}], "session": [{"user_id", "id", "name"}],
+        "get": {"anonymous": [], "account": [{"user_id"}, {"group_id"}, {"id"}, {"name"}],
+                "session": [{"user_id"}, {"group_id"}, {"id"}, {"name"}], "admin": [set()]},
+        "del": {"anonymous": [], "account": [{"id", "name"}], "session": [{"id", "name"}],
                 "admin": [set()]}}
 
     def process(self, response):
