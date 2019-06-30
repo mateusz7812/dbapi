@@ -29,6 +29,7 @@ class TwistedTaker(Taker, resource.Resource):
             response = self.take(loaded_data)
         except Exception as x:
             print("ERROR", x.args, "POST request", data)
+            return bytes(json.dumps({"error": "internal"}), "utf-8")
         if print_results:
             print("POST request", data, "\n response", response)
             sys.stdout.flush()
