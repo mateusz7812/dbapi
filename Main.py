@@ -72,8 +72,12 @@ if __name__ == "__main__":
 
     following_processor = FollowingProcessor()
     following_manager = DataBaseManager()
-    following_writer = TextWriter("follows")
-    following_manager.add_writer(following_writer)
+    following_account_writer = PostgresWriter("postgres", "postgres", "postgres", "zaq1@WSX", "follow_account")
+    following_list_writer = PostgresWriter("postgres", "postgres", "postgres", "zaq1@WSX", "follow_list")
+    following_group_writer = PostgresWriter("postgres", "postgres", "postgres", "zaq1@WSX", "follow_group")
+    following_manager.add_writer(following_account_writer)
+    following_manager.add_writer(following_list_writer)
+    following_manager.add_writer(following_group_writer)
     following_processor.manager = following_manager
     forwarder.add_processor(following_processor)
 
