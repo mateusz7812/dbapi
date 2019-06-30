@@ -65,7 +65,7 @@ if __name__ == "__main__":
 
     session_processor = SessionProcessor()
     sessions_manager = DataBaseManager()
-    sessions_writer = TextWriter("sessions")
+    sessions_writer = PostgresWriter("postgres", "postgres", "postgres", "zaq1@WSX", "sessions")
     sessions_manager.add_writer(sessions_writer)
     session_processor.manager = sessions_manager
     forwarder.add_processor(session_processor)
