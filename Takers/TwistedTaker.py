@@ -31,6 +31,7 @@ class TwistedTaker(Taker, resource.Resource):
         except Exception as exc:
             traceback.print_exception(type(exc), exc, exc.__traceback__)
             print("ERROR", "POST request", data)
+            sys.stdout.flush()
             return bytes(json.dumps({"error": "internal"}), "utf-8")
         if print_results:
             print("POST request", data, "\n response", response)
