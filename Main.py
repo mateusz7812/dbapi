@@ -84,7 +84,7 @@ if __name__ == "__main__":
 
     group_processor = GroupProcessor()
     group_manager = DataBaseManager()
-    group_writer = TextWriter("group")
+    group_writer = PostgresWriter("postgres", "postgres", "postgres", "zaq1@WSX", "group")
     group_manager.add_writer(group_writer)
     group_processor.manager = group_manager
     forwarder.add_processor(group_processor)
