@@ -24,6 +24,7 @@ class TextWriter(DataWriter):
             return False
 
     def insert(self, values: {}):
+        print(self.table)
         if "id" not in values.keys():
             rows = self.select({})
             ids = list(map(lambda x: x["id"], rows))
