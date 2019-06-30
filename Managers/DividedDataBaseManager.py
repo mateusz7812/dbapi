@@ -9,9 +9,9 @@ class DividedDataBaseManager(Manager):
 
     def manage(self, action, data):
         if action == "add":
-            return self.writers[data[self.dividing_column]].insert(data)
+            return self.writers[data.pop(self.dividing_column)].insert(data)
         elif action == "get":
-            return self.writers[data[self.dividing_column]].select(data)
+            return self.writers[data.pop(self.dividing_column)].select(data)
         elif action == "del":
-            return self.writers[data[self.dividing_column]].delete(data)
+            return self.writers[data.pop(self.dividing_column)].delete(data)
         raise Exception("action not found")
