@@ -30,27 +30,23 @@ class GroupProcessor(Processor):
             if "admin_id" not in data.keys():
                 data["admin_id"] = response.request.account["id"]
 
-        if response.request.action == "del":
+        if response.request.action == "del" and "account_type" not in response.request.account:
             if "id" not in data.keys():
                 response.status = "failed"
                 response.result["error"] = "no id"
                 return response
 
-            if "account_type" not in response.request.account:
-                id_groups = self.manager.manage("get", {"id": data["id"], "name": data["name"]})
-                if not id_groups:
-                    response.status = "failed"
-                    response.result["error"] = "bad group id"
-                    return response
+            id_groups = self.manager.manage("get", {"id": data["id"], "name": data["name"]})
+            if not id_groups:
+                response.status = "failed"
+                response.result["error"] = "bad group id"
+                return response
 
-                admin_id = id_groups[0]["admin_id"]
-                if admin_id != response.request.account["id"]:
-                    response.status = "failed"
-                    response.result["error"] = "bad account id"
-                    return response
-            else:
-                if response.request.account["account_type"] != "admin":
-                    raise NotImplementedError
+            admin_id = id_groups[0]["admin_id"]
+            if admin_id != response.request.account["id"]:
+                response.status = "failed"
+                response.result["error"] = "bad account id"
+                return response
 
         response.result["objects"] = self.manager.manage(response.request.action, data)
         response.status = "handled"
