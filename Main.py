@@ -17,7 +17,6 @@ from Takers.TakerInterface import Taker
 from Takers.TwistedTaker import TwistedTaker
 from Writers.EmailWriter import EmailWriter
 from Writers.PostgresWriter import PostgresWriter
-from Writers.TextWriter import TextWriter
 
 
 class Main:
