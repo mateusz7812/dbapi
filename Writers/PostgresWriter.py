@@ -37,7 +37,9 @@ class PostgresWriter(DataWriter):
 
         str_values = ""
         for i in range(len(raw_fields)):
-            str_values += values[raw_fields[i]]
+            if type(values[raw_fields[i]]) == str:
+                values[raw_fields[i]] = "\'" + values[raw_fields[i]] + "\'"
+            str_values += str(values[raw_fields[i]])
             if i != len(raw_fields)-1:
                 str_values += ", "
 
@@ -52,6 +54,8 @@ class PostgresWriter(DataWriter):
         conditions = ""
         for i in range(len(values)):
             key = list(values.keys())[i]
+            if type(values[key]) == str:
+                values[key] = "\'" + values[key] + "\'"
             conditions += "{} = {}".format(key, values[key])
             if i != len(values)-1:
                 conditions += " AND "
@@ -77,6 +81,8 @@ class PostgresWriter(DataWriter):
         conditions = ""
         for i in range(len(values)):
             key = list(values.keys())[i]
+            if type(values[key]) == str:
+                values[key] = "\'" + values[key] + "\'"
             conditions += "{} = {}".format(key, values[key])
             if i != len(values)-1:
                 conditions += " AND "
