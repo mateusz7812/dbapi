@@ -37,7 +37,7 @@ class PostgresWriter(DataWriter):
 
         str_values = ""
         for i in range(len(raw_fields)):
-            str_values += json.dumps(values[raw_fields[i]], ensure_ascii=False).encode('utf8').replace("\"", "\'")
+            str_values += json.dumps(values[raw_fields[i]]).replace("\"", "\'")
             if i != len(raw_fields)-1:
                 str_values += ", "
 
@@ -67,7 +67,7 @@ class PostgresWriter(DataWriter):
                 cleared_row = {}
                 for column in columns:
                     if row[column]:
-                        cleared_row[column] = row[column]
+                        cleared_row[column] = json.loads(row[column].replace("\'", "\""))
                 cleared_rows.append(cleared_row)
         return cleared_rows
 
