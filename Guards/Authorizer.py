@@ -2,7 +2,7 @@ import copy
 
 from Guards.GuardInterface import Guard
 from Requests.Request import Request
-from Responses.Response import BasicResponse
+from Responses.Response import Response
 
 
 class Authorizer(Guard):
@@ -39,14 +39,14 @@ class Authorizer(Guard):
     def get_account(self, request):
         if request.account["type"] == "account" or request.account["type"] == "admin":
             taken_response = self.processors["account"].process(
-                BasicResponse("new", Request({"type": "internal"},
-                                             {"type": "account", "login": request.account["login"],
+                Response("new", Request({"type": "internal"},
+                                        {"type": "account", "login": request.account["login"],
                                               "password": request.account["password"]}, "get")))
             request.account = taken_response.result["objects"][0]
         elif request.account["type"] == "session":
             taken_response = self.processors["account"].process(
-                BasicResponse("new", Request({"type": "internal"},
-                                             {"type": "account", "id": request.account["user_id"]}, "get")))
+                Response("new", Request({"type": "internal"},
+                                        {"type": "account", "id": request.account["user_id"]}, "get")))
             request.account = taken_response.result["objects"][0]
         return request
 
@@ -61,8 +61,8 @@ class Authorizer(Guard):
             return True
 
         elif response_account["type"] == "account" or response_account["type"] == "admin":
-            account_response = BasicResponse("new", Request({"type": "internal"},
-                                                            {"type": "account", "login": response_account["login"],
+            account_response = Response("new", Request({"type": "internal"},
+                                                       {"type": "account", "login": response_account["login"],
                                                              "password": response_account["password"]}, "get"))
             accounts = self.processors["account"].process(account_response).result["objects"]
             if len(accounts) == 1:
@@ -74,7 +74,7 @@ class Authorizer(Guard):
                         return True
 
         elif response_account["type"] == "session":
-            session_response = BasicResponse("new", Request({"type": "internal"}, {"type": "session", "user_id":
+            session_response = Response("new", Request({"type": "internal"}, {"type": "session", "user_id":
                 response_account["user_id"]}, "get"))
             sessions = self.processors["session"].process(session_response).result["objects"]
             keys = [session["key"] for session in sessions]

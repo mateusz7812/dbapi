@@ -3,18 +3,18 @@ from unittest.mock import Mock
 
 from Processors.FollowingProcessor import FollowingProcessor
 from Requests.Request import Request
-from Requests.RequestGenerator import RequestGenerator
-from Responses.Response import BasicResponse
+from Requests.RequestGenerator import RequestGeneratorInterface
+from Responses.Response import Response
 
 processor = FollowingProcessor
-request_generator = RequestGenerator
+request_generator = RequestGeneratorInterface
 
 
 class TestFollowingProcessor(TestCase):
     def setUp(self):
         self.processor = processor()
 
-        self.response = BasicResponse("", Request({}, {}, ""))
+        self.response = Response("", Request({}, {}, ""))
 
     def test_options(self):
         self.assertEqual("follow", self.processor.name)

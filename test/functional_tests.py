@@ -14,10 +14,10 @@ from Processors.FollowingProcessor import FollowingProcessor
 from Processors.GroupProcessor import GroupProcessor
 from Processors.ListProcessor import ListProcessor
 from Processors.SessionProcessor import SessionProcessor
-from Requests.RequestGenerator import RequestGenerator
-from Responses.ResponseGenerator import ResponseGenerator
+from Requests.RequestGenerator import RequestGeneratorInterface
+from Responses.ResponseGenerator import ResponseGeneratorInterface
 from Takers.TwistedTaker import TwistedTaker
-from Writers.TextWriter import TextWriter
+from Workers.TextWorker import TextWorker
 
 
 def get_response(data):
@@ -26,38 +26,38 @@ def get_response(data):
     return json.loads(response.content)
 
 
-requestGenerator = RequestGenerator
-responseGenerator = ResponseGenerator
+requestGenerator = RequestGeneratorInterface
+responseGenerator = ResponseGeneratorInterface
 guard = Authorizer
 
 forwarder = Forwarder(responseGenerator, guard)
 
 account_processor = AccountProcessor()
 account_manager = DataBaseManager()
-accounts_writer = TextWriter("accounts")
+accounts_writer = TextWorker("accounts")
 account_manager.add_writer(accounts_writer)
 account_processor.manager = account_manager
 forwarder.add_processor(account_processor)
 
 list_processor = ListProcessor()
 lists_manager = DataBaseManager()
-lists_writer = TextWriter("lists")
+lists_writer = TextWorker("lists")
 lists_manager.add_writer(lists_writer)
 list_processor.manager = lists_manager
 forwarder.add_processor(list_processor)
 
 session_processor = SessionProcessor()
 sessions_manager = DataBaseManager()
-sessions_writer = TextWriter("sessions")
+sessions_writer = TextWorker("sessions")
 sessions_manager.add_writer(sessions_writer)
 session_processor.manager = sessions_manager
 forwarder.add_processor(session_processor)
 
 following_processor = FollowingProcessor()
 following_manager = DividedDataBaseManager("following")
-following_account_writer = TextWriter("follow_account")
-following_list_writer = TextWriter("follow_list")
-following_group_writer = TextWriter("follow_group")
+following_account_writer = TextWorker("follow_account")
+following_list_writer = TextWorker("follow_list")
+following_group_writer = TextWorker("follow_group")
 following_manager.add_writer(following_account_writer)
 following_manager.add_writer(following_list_writer)
 following_manager.add_writer(following_group_writer)
@@ -66,7 +66,7 @@ forwarder.add_processor(following_processor)
 
 group_processor = GroupProcessor()
 group_manager = DataBaseManager()
-group_writer = TextWriter("group")
+group_writer = TextWorker("group")
 group_manager.add_writer(group_writer)
 group_processor.manager = group_manager
 forwarder.add_processor(group_processor)

@@ -1,4 +1,4 @@
-from Writers.WriterInterface import DataWriter
+from Workers.WorkerInterface import DataWorker
 
 
 class Manager:
@@ -8,8 +8,8 @@ class Manager:
         self.writers = {}
 
     def add_writer(self, writer):
-        #if not issubclass(writer.__class__, DataWriter):
-        #    raise Exception(writer + " is not subclass of DataWriter")
+        #if not issubclass(writer.__class__, DataWorker):
+        #    raise Exception(writer + " is not subclass of DataWorker")
         if writer.prepare():
             self.writers[writer.table] = writer
 

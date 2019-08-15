@@ -3,11 +3,11 @@ from unittest.mock import Mock
 
 from Processors.SessionProcessor import SessionProcessor
 from Requests.Request import Request
-from Requests.RequestGenerator import RequestGenerator
-from Responses.Response import BasicResponse
+from Requests.RequestGenerator import RequestGeneratorInterface
+from Responses.Response import Response
 
 processor = SessionProcessor
-requestsGenerator = RequestGenerator
+requestsGenerator = RequestGeneratorInterface
 
 
 def retval(action, val):
@@ -24,7 +24,7 @@ class TestSessionProcessor(TestCase):
         self.manager.name = "session"
         self.processor.manager = self.manager
 
-        self.response = BasicResponse("", Request({}, {"type": "session", "user_id": 1}, ""))
+        self.response = Response("", Request({}, {"type": "session", "user_id": 1}, ""))
 
     def test_settings(self):
         self.assertEqual("session", self.processor.name)

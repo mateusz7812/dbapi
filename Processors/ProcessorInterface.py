@@ -1,4 +1,4 @@
-from Requests.RequestInterface import Request
+from Requests.Request import Request
 from Managers.ManagerInterface import Manager
 
 

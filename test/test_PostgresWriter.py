@@ -1,16 +1,16 @@
 from unittest import TestCase
 from unittest.mock import patch
 
-from Writers.PostgresWriter import PostgresWriter
+from Workers.PostgresWorker import PostgresWorker
 
-writer = PostgresWriter
+writer = PostgresWorker
 
 
 class TestTextWriter(TestCase):
 
     @patch('psycopg2.connect')
     def test_insert(self, conn):
-        self.writer = writer("bad", "postgres", "postgres", "zaq1@WSX", "test")
+        self.writer = writer("postgres", "postgres", "postgres", "zaq1@WSX", "test")
         self.writer.prepare()
 
         result = self.writer.insert({"test": '1', "id": 1})
@@ -20,7 +20,7 @@ class TestTextWriter(TestCase):
 
     @patch('psycopg2.connect')
     def test_select(self, conn):
-        self.writer = writer("bad", "postgres", "postgres", "zaq1@WSX", "test")
+        self.writer = writer("postgres", "postgres", "postgres", "zaq1@WSX", "test")
         self.writer.prepare()
         conn.return_value.cursor.return_value.fetchall.return_value = [
             {"test": '1', "id": 1, "data": None, "some_data": None}]
@@ -33,7 +33,7 @@ class TestTextWriter(TestCase):
 
     @patch('psycopg2.connect')
     def test_delete(self, conn):
-        self.writer = writer("bad", "postgres", "postgres", "zaq1@WSX", "test")
+        self.writer = writer("postgres", "postgres", "postgres", "zaq1@WSX", "test")
         self.writer.prepare()
         conn.return_value.cursor.return_value.fetchall.return_value = [
             {"test": 1, "id": 1, "data": None, "some_data": None}]
@@ -42,3 +42,17 @@ class TestTextWriter(TestCase):
 
         self.assertEqual([{"id": 1, "test": 1}], result)
         conn.return_value.cursor.return_value.execute.assert_called_with('DELETE FROM test WHERE id = 1 RETURNING *')
+
+    @patch('psycopg2.connect')
+    def test_update(self, conn):
+        self.writer = writer("postgres", "postgres", "postgres", "zaq1@WSX", "test")
+        self.writer.prepare()
+        conn.return_value.cursor.return_value.fetchall.return_value = [
+            {"test": '1', "id": 1, "data": None, "some_data": None}]
+
+        result = self.writer.update({"test": '1', "id": 1})
+
+        self.assertEqual([{"id": 1, "test": '1'}], result)
+        conn.return_value.cursor.return_value.execute.assert_called_with(
+            'UPDATE test SET test = \'1\' WHERE id = 1 RETURNING *'
+        )

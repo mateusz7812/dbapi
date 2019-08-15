@@ -1,7 +1,4 @@
-from Requests.RequestInterface import Request
-
-
-class RequestGenerator:
+class RequestGeneratorInterface:
     def __init__(self):
         self.request_type = None
 

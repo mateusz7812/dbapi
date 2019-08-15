@@ -1,9 +1,9 @@
 
 from Requests.Request import Request
-from Requests.RequestGeneratorInterface import RequestGenerator
+from Requests.RequestGeneratorInterface import RequestGeneratorInterface
 
 
-class RequestGenerator(RequestGenerator):
+class RequestGenerator(RequestGeneratorInterface):
     def __init__(self):
         super().__init__()
         self.request_type = Request

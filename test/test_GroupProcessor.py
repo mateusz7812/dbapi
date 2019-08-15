@@ -4,11 +4,11 @@ from unittest.mock import Mock
 
 from Processors.GroupProcessor import GroupProcessor
 from Requests.Request import Request
-from Requests.RequestGenerator import RequestGenerator
-from Responses.Response import BasicResponse
+from Requests.RequestGenerator import RequestGeneratorInterface
+from Responses.Response import Response
 
 processor = GroupProcessor
-requestsGenerator = RequestGenerator
+requestsGenerator = RequestGeneratorInterface
 
 
 class TestListProcessor(TestCase):
@@ -20,7 +20,7 @@ class TestListProcessor(TestCase):
         self.manager.manage.return_value = []
         self.processor.manager = self.manager
 
-        self.new_response = BasicResponse("", Request({"id": 1, "login": "login", "password": "password"}, {}, ""))
+        self.new_response = Response("", Request({"id": 1, "login": "login", "password": "password"}, {}, ""))
 
     def test_add(self):
         self.new_response.request.object = {"type": 'group', "name": "my_group"}

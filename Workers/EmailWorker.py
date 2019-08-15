@@ -1,7 +1,7 @@
 import smtplib
 
 
-class EmailWriter:
+class EmailWorker:
     def prepare(self):
         try:
             s = smtplib.SMTP('smtp.gmail.com', 587)

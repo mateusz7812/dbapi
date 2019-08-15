@@ -1,4 +1,4 @@
-class DataWriter:
+class DataWorker:
     def prepare(self):
         raise NotImplementedError
 
@@ -9,4 +9,7 @@ class DataWriter:
         raise NotImplementedError
 
     def delete(self, values: {}):
+        raise NotImplementedError
+
+    def update(self, values: {}):
         raise NotImplementedError

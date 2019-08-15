@@ -3,7 +3,7 @@ from setuptools import setup
 setup(
     name='lists_core',
     version='',
-    packages=['Forwarders', "Guards", "Managers", "Processors", "Requests", "Responses", "Takers", "Writers"],
+    packages=['Forwarders', "Guards", "Managers", "Processors", "Requests", "Responses", "Takers", "Workers"],
     py_modules=['Main.py'],
     url='https://github.com/mateusz7812/modular_server',
     include_package_data=True,
@@ -11,5 +11,5 @@ setup(
     license='',
     author='mateusz7812',
     author_email='',
-    description=''
+    description='', install_requires=['flask']
 )

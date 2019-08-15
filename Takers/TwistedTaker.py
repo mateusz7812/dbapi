@@ -35,7 +35,23 @@ class TwistedTaker(Taker, resource.Resource):
             print("POST request", data, "\n response", response)
             sys.stdout.flush()
         response = json.dumps(response)
-        return bytes(response, "utf-8")
+
+        request.setHeader('Access-Control-Allow-Origin', '*')
+
+        request.setHeader('Access-Control-Allow-Origin', '*')
+        request.setHeader('Access-Control-Allow-Methods', 'POST')
+        request.setHeader('Access-Control-Allow-Headers', 'x-prototype-version,x-requested-with')
+        request.setHeader('Access-Control-Max-Age', 2520)  # 42 hours
+
+        # normal JSON header
+        request.setHeader('Content-type', 'application/json')
+        request.write(bytes(response, "utf-8"))  # gotta use double-quotes in JSON apparently
+        request.finish()
+
+        # return this even though the request really is finished by now
+        return server.NOT_DONE_YET
+
+        ##return bytes(response, "utf-8")
 
     def start(self):
         site = server.Site(self)

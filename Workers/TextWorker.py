@@ -1,16 +1,18 @@
 import json
 
-from Writers.WriterInterface import DataWriter
+from Workers.WorkerInterface import DataWorker
 
 
 def match(values, line):
     for key in values.keys():
+        if key not in line.keys():
+            return False
         if line[key] != values[key]:
             return False
     return True
 
 
-class TextWriter(DataWriter):
+class TextWorker(DataWorker):
     def __init__(self, table):
         self.table = table
 

@@ -1,6 +1,10 @@
-from Requests.RequestInterface import Request
 
 
-class Request(Request):
+class Request:
     def __init__(self, account: {}, data_object: {}, action: str):
-        super().__init__(account, data_object, action)
+        self.account = account
+        self.object = data_object
+        self.action = action
+
+
+

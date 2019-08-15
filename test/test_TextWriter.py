@@ -4,9 +4,9 @@ import os
 from unittest import TestCase
 from unittest.mock import patch, Mock, MagicMock, mock_open
 
-from Writers.TextWriter import TextWriter
+from Workers.TextWorker import TextWorker
 
-writer = TextWriter
+writer = TextWorker
 
 
 class TestTextWriter(TestCase):

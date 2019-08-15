@@ -1,11 +1,11 @@
-from Requests.RequestGeneratorInterface import RequestGenerator
+from Requests.RequestGeneratorInterface import RequestGeneratorInterface
 from Forwarders.ForwarderInterface import Forwarder
 
 
 class Taker:
     def __init__(self, request_generator, forwarder):
-        if not issubclass(request_generator, RequestGenerator):
-            raise Exception(request_generator + " is not subclass of RequestGenerator")
+        if not issubclass(request_generator, RequestGeneratorInterface):
+            raise Exception(request_generator + " is not subclass of RequestGeneratorInterface")
         if not issubclass(forwarder.__class__, Forwarder):
             raise Exception(forwarder + " is not subclass of Forwarder")
         self.forwarder = forwarder

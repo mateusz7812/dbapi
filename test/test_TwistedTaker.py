@@ -7,8 +7,8 @@ import requests
 from Main import Main
 from Forwarders.ForwarderInterface import Forwarder
 from Takers.TwistedTaker import TwistedTaker
-from Requests.RequestGeneratorInterface import RequestGenerator
-from Responses.ResponseGeneratorInterface import ResponseGenerator
+from Requests.RequestGeneratorInterface import RequestGeneratorInterface
+from Responses.ResponseGeneratorInterface import ResponseGeneratorInterface
 
 
 class MockTwistedTaker(TwistedTaker):
@@ -16,9 +16,9 @@ class MockTwistedTaker(TwistedTaker):
         return data
 
 
-responseGenerator = ResponseGenerator
+responseGenerator = ResponseGeneratorInterface
 forwarder = Forwarder(responseGenerator)
-requestGenerator = RequestGenerator
+requestGenerator = RequestGeneratorInterface
 taker = MockTwistedTaker(requestGenerator, forwarder)
 
 
@@ -38,12 +38,11 @@ class TestTaker(TestCase):
     def test_taking(self):
         data = {
             "account": None,
-            "object": "user",
-            "action": "add",
-            "data": {
+            "object": {
                 "login": "test",
                 "password": "test"
-            }
+            },
+            "action": "add"
         }
         data_dumped = json.dumps(data)
         response = requests.post("http://127.0.0.1:7000", data_dumped)

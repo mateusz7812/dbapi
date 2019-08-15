@@ -4,7 +4,7 @@ from unittest.mock import Mock
 from Guards.Authorizer import Authorizer
 from Guards.GuardInterface import Guard
 from Requests.Request import Request
-from Responses.Response import BasicResponse
+from Responses.Response import Response
 
 guard = Authorizer
 
@@ -13,7 +13,7 @@ class TestBasicGuard(TestCase):
     def setUp(self):
         self.guard = guard()
 
-        self.response = BasicResponse("new", Request({}, {}, ""))
+        self.response = Response("new", Request({}, {}, ""))
 
     def test_settings(self):
         self.assertEqual(self.guard.authorization_methods, ["anonymous", "session", "account", "admin"])

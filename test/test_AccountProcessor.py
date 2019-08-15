@@ -2,13 +2,13 @@ from unittest import TestCase
 from unittest.mock import Mock
 
 from Requests.Request import Request
-from Requests.RequestGenerator import RequestGenerator
-from Requests.RequestInterface import Request
-from Responses.Response import BasicResponse
+from Requests.RequestGenerator import RequestGeneratorInterface
+from Requests.Request import Request
+from Responses.Response import Response
 from Processors.AccountProcessor import AccountProcessor
 
 processor = AccountProcessor
-requestsGenerator = RequestGenerator
+requestsGenerator = RequestGeneratorInterface
 
 
 class TestAccountProcessor(TestCase):
@@ -19,7 +19,7 @@ class TestAccountProcessor(TestCase):
         self.manager.name = "account"
         self.processor.manager = self.manager
 
-        self.response = BasicResponse("", Request({}, {}, ""))
+        self.response = Response("", Request({}, {}, ""))
 
     def test_settings(self):
         self.assertEqual("account", self.processor.name)

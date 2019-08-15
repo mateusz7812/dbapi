@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from Requests.Request import Request
-from Responses.Response import BasicResponse
+from Responses.Response import Response
 from Responses.ResponseGenerator import ResponseGenerator
 
 generator = ResponseGenerator
@@ -14,7 +14,7 @@ class TestResponseGenerator(TestCase):
         self.request = Request({"type": "anonymous"}, {"type": "account", "login": "test", "password": "test"}, "add")
 
     def test_response(self):
-        response = BasicResponse("new", self.request)
+        response = Response("new", self.request)
 
         self.assertEqual("new", response.status)
         self.assertEqual(self.request, response.request)

@@ -1,10 +1,8 @@
-import copy
 from unittest import TestCase
-from unittest.mock import patch, Mock
+from unittest.mock import Mock
 
-from Processors.ProcessorInterface import Processor
-from Requests.Request import Request
 from Forwarders.Forwarder import Forwarder
+from Requests.Request import Request
 from Responses.ResponseGenerator import ResponseGenerator
 
 forwarder = Forwarder

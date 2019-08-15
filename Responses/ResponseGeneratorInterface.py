@@ -1,7 +1,7 @@
-from Requests.RequestInterface import Request
+from Requests.Request import Request
 
 
-class ResponseGenerator:
+class ResponseGeneratorInterface:
     def __init__(self):
         self.response_class = None
 
